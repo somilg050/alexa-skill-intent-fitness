@@ -10,23 +10,35 @@ var RandomInt = (min, max) => {
 		return Math.floor(Math.random()*(max-min+1)+min);
 	};
 	
-const LaunchRequestHandler = {
-  canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
-  },
-  handle(handlerInput) {
-    const speechText = `Hello Friends! Welcome abord! You can explore a country with simba
-    or learn about a festival. What would you like to do?` ;
-    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    SessionAttributes.last = speechText;
-    
-    
-    return handlerInput.responseBuilder
-      .speak(speechText)
-      .withShouldEndSession(false)
-      .getResponse();
-  },
-};
+  const LaunchRequestHandler = {
+    canHandle(handlerInput) {
+      return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+    },
+    handle(handlerInput) {
+      const speechText = `Welcome to IntentFitness, the fun way to train both your mind and your body. 
+      You can ask for an interesting fitness fact or start your fitness journey. What would you like to do?`;
+  
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
+  
+  const FitnessJourneyIntent = {
+    canHandle(handlerInput) {
+      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && handlerInput.requestEnvelope.request.intent.name === 'FitnessJourneyIntent';
+    },
+    async handle(handlerInput) {
+      var speechText = "Let's get you started on your fitness journey!"
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
 
 const ExploreWorldIntent = {
   canHandle(handlerInput) {
