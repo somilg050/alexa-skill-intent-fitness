@@ -2,7 +2,7 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk-core');
-const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
+//const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
 
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
@@ -25,17 +25,16 @@ const LaunchRequestHandler = {
   },
 };
 
-var decodeHTML = function (html) {
-  var txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
-};
+// var decodeHTML = function (html) {
+//   var txt = document.createElement('textarea');
+//   txt.innerHTML = html;
+//   return txt.value;
+// };
   
 const FitnessJourneyIntent = {
   canHandle(handlerInput) {
-    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && handlerInput.requestEnvelope.request.intent.name === 'FitnessJourneyIntent';
+      && handlerInput.requestEnvelope.request.intent.name === 'FitnessJourney';
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
@@ -45,7 +44,7 @@ const FitnessJourneyIntent = {
     The game goes like this, we ask 5 questions from the category of your choice.
     Based on your score out of 5, we set the difficulty level of your exercise.
     We help you utilize your break between different exercises and use it to train your mind.
-    Excited? Tell us a category to start.`
+    Excited? Tell us a category to start.`;
     
     SessionAttributes.last = speechText;
     
@@ -73,8 +72,7 @@ const QuizIntent = {
     }
 
     var URL = `https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple`;
-    const request = handlerInput.requestEnvelope.request;
-
+    var categorySlot;
     if(handlerInput.requestEnvelope
       && handlerInput.requestEnvelope.request
       && handlerInput.requestEnvelope.request.intent
@@ -83,14 +81,10 @@ const QuizIntent = {
       && handlerInput.requestEnvelope.request.intent.slots.category.resolutions
       && handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0]
       && (handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0].status.code === "ER_SUCCESS_MATCH")){
-        category = request.intent.slots.category.resolutions.resolutionsPerAuthority[0].values[0].value.name;
-    }
-
-    if(handlerInput.requestEnvelope.request.intent.slots.category.value){
-      let categorySlot = handlerInput.requestEnvelope.request.intent.slots['category'].value;
+      categorySlot = handlerInput.requestEnvelope.request.intent.slots['category'].value;
       let categoryId = handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0].values[0].value.id;
       if(categoryId != 0){
-        speechText = `Here are your questions in ${categorySlot} category!!`;
+        speechText = `Here are your questions in ${categorySlot} category!! `;
         URL+=`&category=${categoryId}`;
       }
       else{
@@ -107,9 +101,11 @@ const QuizIntent = {
       else{
         i = 0;
       }
-      ques = data.results[i].question;
-      ans = data.results[i].correct_answer;
+      ques = data.results[i%5].question;
+      ans = data.results[i%5].correct_answer;
       SessionAttributes.data = data;
+      SessionAttributes.ques = ques;
+      SessionAttributes.ans = ans;
       i++;
       SessionAttributes.count = i;
     })
@@ -118,9 +114,8 @@ const QuizIntent = {
       speechText = err.message;
     });
 
-    var decoded = decodeHTML(ques);
-    speechText += decoded;
-
+    speechText += ques;
+    
     SessionAttributes.last = speechText;
     return handlerInput.responseBuilder
       .speak(speechText)
@@ -136,7 +131,7 @@ const CancelAndStopIntentHandler = {
         || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
   },
   handle(handlerInput) {
-    const speechText = `Simba says Goodbye! come back later`;
+    const speechText = `Cancel And Stop Intent Handler`;
 
     return handlerInput.responseBuilder
       .speak(speechText)
@@ -151,17 +146,8 @@ const FallBackHandler = {
       && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.FallbackIntent';
   },
   handle(handlerInput) {
-    var speechText ="Simba quite can't understand what you just said. ";
+    var speechText ="Fallback Intent";
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    
-    if(SessionAttributes.State === 'SuggestedCountry'){
-      speechText = `Simba had difficulty understanding by what you said, `
-      + ` do you want to go to ${SessionAttributes.SuggestedCountry} `
-      + `or try something else. try answering with yes or no `;
-    }
-    else if(SessionAttributes.State === 'ExploringCountry'){
-      speechText += SessionAttributes.last; 
-    }
     SessionAttributes.last = speechText;
     return handlerInput.responseBuilder
       .speak(speechText)
@@ -176,8 +162,7 @@ const HelpIntentHandler = {
       && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
   },
   handle(handlerInput) {
-    const speechText = `Hello Friends! Welcome abord! You can explore a country with simba
-    or learn about a festival. What would you like to do?`;
+    const speechText = `HELP`;
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     SessionAttributes.last = speechText;
     
@@ -211,7 +196,7 @@ const SessionEndedRequestHandler = {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
 
     return handlerInput.responseBuilder
-    .speak(`Simba doesn't feel so good, come back later.`)
+    .speak(`Session Ended`)
     .withShouldEndSession(true)
     .getResponse();
   },
@@ -225,19 +210,19 @@ const ErrorHandler = {
     console.log(`Error handled: ${error.message}`);
 
     return handlerInput.responseBuilder
-      .speak(`Simba dosn't feel so good, talk to you later.`)
+      .speak(`Error`)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
 
-function getPersistenceAdapter(tableName) {
-  // Not in Alexa Hosted Environment
-  return new ddbAdapter.DynamoDbPersistenceAdapter({
-    tableName: tableName,
-    createTable: true
-  });
-}
+// function getPersistenceAdapter(tableName) {
+//   // Not in Alexa Hosted Environment
+//   return new ddbAdapter.DynamoDbPersistenceAdapter({
+//     tableName: tableName,
+//     createTable: true
+//   });
+// }
 
 const getRemoteData = function (url) {
   return new Promise((resolve, reject) => {
@@ -250,14 +235,14 @@ const getRemoteData = function (url) {
       response.on('data', (chunk) => body.push(chunk));
       response.on('end', () => resolve(body.join('')));
     });
-    request.on('error', (err) => reject(err))
-  })
+    request.on('error', (err) => reject(err));
+  });
 };
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
 exports.handler = skillBuilder
-  .withPersistenceAdapter(getPersistenceAdapter('Intent-Fitness'))
+  //.withPersistenceAdapter(getPersistenceAdapter('Intent-Fitness'))
   .addRequestHandlers(
     LaunchRequestHandler,
     FallBackHandler,
