@@ -24,12 +24,6 @@ const LaunchRequestHandler = {
       .getResponse();
   },
 };
-
-// var decodeHTML = function (html) {
-//   var txt = document.createElement('textarea');
-//   txt.innerHTML = html;
-//   return txt.value;
-// };
   
 const FitnessJourneyIntent = {
   canHandle(handlerInput) {
@@ -88,8 +82,15 @@ const QuizIntent = {
         URL+=`&category=${categoryId}`;
       }
       else{
-        speechText = `Here we go!!`;
+        speechText = `Here we go!! `;
       }
+    }
+    else{
+      speechText = `Sorry, we don't have that category. Try something like movie, music, sports. `;
+      return handlerInput.responseBuilder
+      .speak(speechText)
+      .withShouldEndSession(endSession)
+      .getResponse();
     }
     var ques, ans;
     await getRemoteData(URL)

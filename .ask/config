@@ -10,15 +10,15 @@
         },
         "lambda": [
           {
-            "arn": "arn:aws:lambda:us-east-1:455994645454:function:serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
-            "awsRegion": "us-east-1",
-            "functionName": "serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "alexaUsage": [
               "custom/default"
             ],
-            "revisionId": "bffe320f-390a-42c5-84d1-ef70b156c23f",
+            "arn": "arn:aws:lambda:us-east-1:455994645454:function:serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
+            "awsRegion": "us-east-1",
             "codeUri": "lambda/us-east-1_serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
+            "functionName": "serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "handler": "index.handler",
+            "revisionId": "23d5d37d-c38c-4f64-b555-0845c3f8d394",
             "runtime": "nodejs10.x"
           }
         ]
