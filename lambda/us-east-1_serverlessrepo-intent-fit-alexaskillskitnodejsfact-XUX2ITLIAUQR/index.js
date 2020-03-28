@@ -1,13 +1,15 @@
 /* eslint-disable  func-names */
 /* eslint-disable  no-console */
-
+ 
 const Alexa = require('ask-sdk-core');
 //const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
+
+const Script = require('./Script.js');
 
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
 };
-
+ 
 var i;
 var flag=false;
 var last;
@@ -20,9 +22,9 @@ const LaunchRequestHandler = {
     const speechText = `Welcome to Intent Fitness, the fun way to train both your mind and your body. 
     You can ask for an interesting fitness fact or start your fitness journey. What would you like to do?`;
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
+ 
     SessionAttributes.Last = speechText;
-
+ 
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(false)
@@ -38,7 +40,7 @@ const FitnessJourneyIntent = {
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     var speechText = '';
-
+ 
     speechText = `Let's get you started on your fitness journey! 
     The game goes like this, we ask 5 questions from the category of your choice.
     Based on your score out of 5, we set the difficulty level of your exercise.
@@ -54,27 +56,79 @@ const FitnessJourneyIntent = {
   },
 };
 
-function askQuestion(handlerInput) {
-  var speechText;
+const WorkoutIntent = {
+    canHandle(handlerInput) {
+      //var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || flag );
+    },
+    async handle(handlerInput) {
+      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      
+      var speechText ='';
+      var Keys = Object.keys(Script);
+      var len = 2;
+      var index = RandomInt(0,len);
+      var exercise = Keys[index];
+      var score = SessionAttributes.Score;
+      console.log(score);
+      var level = 0;
+      if (score == 3){
+        level = 1;
+      }
+      if (score <3){
+        level = 2;
+      }
+      speechText = Script[exercise][level].dialog;
+      speechText += `Great job! Eighter continue with the same category or tell me a different category.`;
+
+      SessionAttributes.Last = speechText;
+      
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
+
+  const ChangeCategoryIntent = {
+    canHandle(handlerInput) {
+      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && (handlerInput.requestEnvelope.request.intent.name === 'ChangeCategory');
+    },
+    async handle(handlerInput) {
+      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+      var speechText = `Looks like you want to change the category of questions. Tell me what category you want?`;
+
+      SessionAttributes.Last = speechText;
+      
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
+ 
+var map;
+ 
+async function askQuestion(handlerInput) {
   const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   SessionAttributes.AnswerAwaiting = true;
   var ques, ans;
   var URL = SessionAttributes.URL;
-  const data;
+  var data;
   if(!SessionAttributes.hasOwnProperty('Data')){
     await getRemoteData(URL)
     .then((response) => {
       data = JSON.parse(response);
       i = 0;
-    })
-    .catch((err) => {
-      //set an optional error message here
-      speechText = err.message;
     });
   }
   ques = data.results[i%5].question;
   ans = data.results[i%5].correct_answer;
-  var options = data.results[i%5].incorrect_answer;
+  var options = data.results[i%5].incorrect_answers;
   options[options.length] = ans;
   SessionAttributes.Options = options;
   SessionAttributes.PrevAnswer = ans;
@@ -82,25 +136,24 @@ function askQuestion(handlerInput) {
   i++;
   SessionAttributes.Count = i;
   
-  speechText += ques;
+  var speechText = ques;
   var choice = RandomInt(0,3);
-  let map = new Map();
-
-  map.set(options[choice%4], 'option one');
-  map.set(options[(choice+1)%4], 'option two');
-  map.set(options[(choice+2)%4], 'option three');
-  map.set(options[(choice+3)%4], 'option four');
-
-  SessionAttributes.Map = map;
-
-  speechText += `Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
+  map = new Object();
+ 
+  map[options[choice%4]] = 'option one';
+  map[options[(choice+1)%4]] = 'option two';
+  map[options[(choice+2)%4]] = 'option three';
+  map[options[(choice+3)%4]] = 'option four';
+  console.log(map);
+ 
+  speechText += ` Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
                 option C - ${options[(choice+2)%4]}, option D - ${options[(choice+3)%4]} `;
-
+ 
   handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
   SessionAttributes.Last = speechText;
   return speechText;
 }
-
+ 
 const QuizIntent = {
   canHandle(handlerInput) {
     var request = handlerInput.requestEnvelope.request;
@@ -117,7 +170,7 @@ const QuizIntent = {
     if(request.intent.name === 'AMAZON.StopIntent' || request.intent.name === 'AMAZON.CancelIntent'){
       return CancelAndStopIntentHandler.handle(handlerInput);
     }
-
+ 
     var URL = `https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple`;
     var categorySlot;
     if(handlerInput.requestEnvelope
@@ -150,18 +203,17 @@ const QuizIntent = {
       flag = true;
     }
     SessionAttributes.URL = URL;
-    var ques = askQuestion(handlerInput);
-
+    var ques = await askQuestion(handlerInput);
     speechText += ques;
     SessionAttributes.Last = speechText;
-
+ 
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(endSession)
       .getResponse();
   },
 };
-
+ 
 const AnswerIntent = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -175,20 +227,23 @@ const AnswerIntent = {
     var endSession = false;
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const request = handlerInput.requestEnvelope.request;
-    const answerSlot = request.intent.slots.answer.value;
-
+    const answerSlot = request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+ 
     const prevAnswer = SessionAttributes.PrevAnswer;
     var speakOutput;
+    console.log(answerSlot);
+    console.log(map[prevAnswer]);
+ 
     
-    if(SessionAttributes.Map[prevAnswer] == answerSlot) {
-      speakOutput = "That answer is correct. ";
-      SessionAttributes.Score += 1;
-    }
-    else{
-      speakOutput = "That answer is wrong. ";
-    }
+    // if(map[prevAnswer] == answerSlot) {
+    //   speakOutput = "That answer is correct. ";
+    //   SessionAttributes.Score += 1;
+    // }
+    // else{
+    //   speakOutput = "That answer is wrong. ";
+    // }
     if(SessionAttributes.Count<5){
-      var intm = askQuestion(handlerInput);
+      var intm = await askQuestion(handlerInput);
       speakOutput += intm; 
       SessionAttributes.Last=intm;
     }
@@ -200,7 +255,7 @@ const AnswerIntent = {
     handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
     last=speakOutput;
     SessionAttributes.Last = last;
-
+ 
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .reprompt(speakOutput)
@@ -208,7 +263,7 @@ const AnswerIntent = {
       .getResponse();
   }
 };
-
+ 
 const CancelAndStopIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -217,14 +272,14 @@ const CancelAndStopIntentHandler = {
   },
   handle(handlerInput) {
     const speechText = `Cancel And Stop Intent Handler`;
-
+ 
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
-
+ 
 const FallBackHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -240,7 +295,7 @@ const FallBackHandler = {
       .getResponse();
   },
 };
-
+ 
 const HelpIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -257,7 +312,7 @@ const HelpIntentHandler = {
       .getResponse();
   },
 };
-
+ 
 const RepeatHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -272,35 +327,35 @@ const RepeatHandler = {
       .getResponse();
   },
 };
-
+ 
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-
+ 
     return handlerInput.responseBuilder
     .speak(`Session Ended`)
     .withShouldEndSession(true)
     .getResponse();
   },
 };
-
+ 
 const ErrorHandler = {
   canHandle() {
     return true;
   },
   handle(handlerInput, error) {
     console.log(`Error handled: ${error.message}`);
-
+ 
     return handlerInput.responseBuilder
       .speak(`Error`)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
-
+ 
 // function getPersistenceAdapter(tableName) {
 //   // Not in Alexa Hosted Environment
 //   return new ddbAdapter.DynamoDbPersistenceAdapter({
@@ -308,7 +363,7 @@ const ErrorHandler = {
 //     createTable: true
 //   });
 // }
-
+ 
 const getRemoteData = function (url) {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https') ? require('https') : require('http');
@@ -323,9 +378,9 @@ const getRemoteData = function (url) {
     request.on('error', (err) => reject(err));
   });
 };
-
+ 
 const skillBuilder = Alexa.SkillBuilders.custom();
-
+ 
 exports.handler = skillBuilder
   //.withPersistenceAdapter(getPersistenceAdapter('Intent-Fitness'))
   .addRequestHandlers(
@@ -338,6 +393,8 @@ exports.handler = skillBuilder
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
+    WorkoutIntent,
+    ChangeCategoryIntent
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
