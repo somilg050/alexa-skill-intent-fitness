@@ -39,7 +39,15 @@ const FitnessJourneyIntent = {
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    var speechText = "Let's get you started on your fitness journey!";
+    var speechText = '';
+
+    speechText = `Let's get you started on your fitness journey! 
+    The game goes like this, we ask 5 questions from the category of your choice.
+    Based on your score out of 5, we set the difficulty level of your exercise.
+    We help you utilize your break between different exercises and use it to train your mind.
+    Excited? Tell us a category to start.`
+    
+    SessionAttributes.last = speechText;
     
     return handlerInput.responseBuilder
       .speak(speechText)
