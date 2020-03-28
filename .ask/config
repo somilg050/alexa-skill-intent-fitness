@@ -18,7 +18,7 @@
             "codeUri": "lambda/us-east-1_serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "functionName": "serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "handler": "index.handler",
-            "revisionId": "23d5d37d-c38c-4f64-b555-0845c3f8d394",
+            "revisionId": "40701c48-c89a-4bd8-9ff6-e90b310f20fb",
             "runtime": "nodejs10.x"
           }
         ]
