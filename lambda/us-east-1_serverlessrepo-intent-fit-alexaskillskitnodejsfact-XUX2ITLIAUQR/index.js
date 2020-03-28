@@ -1,107 +1,459 @@
-/*
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
+/* eslint-disable  func-names */
+/* eslint-disable  no-console */
 
-//
-// Alexa Fact Skill - Sample for Beginners
-//
-
-// sets up dependencies
 const Alexa = require('ask-sdk-core');
-const i18n = require('i18next');
+const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
+const Script = require('./Script.js');
+const { OtherAudio, CountryRelated } = require('./Audio_URLS.js');
 
-// core functionality for fact skill
-const GetNewFactHandler = {
+var RandomInt = (min, max) => {
+		return Math.floor(Math.random()*(max-min+1)+min);
+	};
+	
+const LaunchRequestHandler = {
   canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    // checks request type
-    return request.type === 'LaunchRequest'
-      || (request.type === 'IntentRequest'
-        && request.intent.name === 'GetNewFactIntent');
+    return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
   },
   handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    // gets a random fact by assigning an array to the variable
-    // the random item from the array will be selected by the i18next library
-    // the i18next library is set up in the Request Interceptor
-    const randomFact = requestAttributes.t('FACTS');
-    // concatenates a standard message with the random fact
-    const speakOutput = requestAttributes.t('GET_FACT_MESSAGE') + randomFact;
+    const speechText = `Hello Friends! Welcome abord! You can explore a country with simba
+    or learn about a festival. What would you like to do?` ;
 
     return handlerInput.responseBuilder
-      .speak(speakOutput)
-      // Uncomment the next line if you want to keep the session open so you can
-      // ask for another fact without first re-opening the skill
-      // .reprompt(requestAttributes.t('HELP_REPROMPT'))
-      .withSimpleCard(requestAttributes.t('SKILL_NAME'), randomFact)
+      .speak(speechText)
+      .withShouldEndSession(false)
       .getResponse();
   },
 };
 
-const HelpHandler = {
+const ExploreWorldIntent = {
   canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && request.intent.name === 'AMAZON.HelpIntent';
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var cond = false;
+    if(SessionAttributes.hasOwnProperty("unfinishedJourney")){
+      cond = true;
+    }
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'ExploreWorldIntent' 
+        || cond);
   },
-  handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+  async handle(handlerInput) {
+    var Keys = Object.keys(Script);
+    var request = handlerInput.requestEnvelope.request;
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var RandomCountry = Keys[RandomInt(0, 2)];
+    var speechText = "";
+
+    if(!SessionAttributes.hasOwnProperty("unfinishedJourney")){
+      var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      if(PersistenceAttributes.hasOwnProperty("State")){
+        SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        SessionAttributes.unfinishedJourney = true;
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        speechText = `Oh, it looks like you were in middle of a `
+        +`journey in ${PersistenceAttributes.Exploring}, would you like to countinue traveling?`;
+        
+        return handlerInput.responseBuilder
+          .speak(speechText)
+          .withShouldEndSession(false)
+          .getResponse();
+      }
+    }else{
+      delete SessionAttributes.unfinishedJourney;
+      if(request.intent.name === 'AMAZON.YesIntent'){
+        SessionAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        return ExploringAChapter.handle(handlerInput);
+      }else if(request.intent.name === 'AMAZON.NoIntent'){
+        handlerInput.attributesManager.setPersistentAttributes({});
+        await handlerInput.attributesManager.savePersistentAttributes();
+      }
+    }
+
+    speechText = `Get ready to explore `
+      + `countries with simba and his friends. `
+      + ` <audio src="${CountryRelated.countryIntro}"/> `
+      + `Lets spin the magic wheel to see where simba and his friends are going today? ` 
+      + ` <audio src="${OtherAudio.magic_wheel}"/>`;
+
+    if(request.intent.hasOwnProperty("slots") 
+        &&  request.intent.slots.hasOwnProperty("country")
+        && request.intent.slots.country.hasOwnProperty('value')){
+      
+      var givenCountry = request.intent.slots.country.value;
+      givenCountry = givenCountry.toLowerCase();
+      var index = Keys.findIndex((ele) => ele === givenCountry);
+      console.log(givenCountry);
+      if(index == -1){
+        speechText = `Oh no, Simba can't go to ${givenCountry}, but simba knows ${RandomCountry} is amazing. `
+        + ` Would you like to explore ${RandomCountry} with Simba?`;
+      }else{
+        SessionAttributes.Exploring = givenCountry;
+        SessionAttributes.Scene = 0; 
+        SessionAttributes.State = 'ExploringCountry';
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        return ExploringAChapter.handle(handlerInput);
+      }
+    }else{
+      speechText += ` we got ${RandomCountry}, `
+      + `Would you like to explore ${RandomCountry} `;
+    }
+
+    SessionAttributes.SuggestedCountry = RandomCountry;
+    SessionAttributes.State = "SuggestedCountry";
+    SessionAttributes.SuggestedCountryCount = 1;
+    handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+
     return handlerInput.responseBuilder
-      .speak(requestAttributes.t('HELP_MESSAGE'))
-      .reprompt(requestAttributes.t('HELP_REPROMPT'))
+      .speak(speechText)
+      .withShouldEndSession(false)
       .getResponse();
   },
 };
 
-const FallbackHandler = {
-  // The FallbackIntent can only be sent in those locales which support it,
-  // so this handler will always be skipped in locales where it is not supported.
+const ExploreFestivalIntent = {
   canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && request.intent.name === 'AMAZON.FallbackIntent';
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var cond = false;
+    if(SessionAttributes.hasOwnProperty("unfinishedJourney")){
+      cond = true;
+    }
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'ExploreFestivalIntent' 
+        || cond);
   },
-  handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+  async handle(handlerInput) {
+    var Keys = Object.keys(Script);
+    var request = handlerInput.requestEnvelope.request;
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var RandomFestival = Keys[RandomInt(3, 5)];
+    var speechText = "";
+ 
+    if(!SessionAttributes.hasOwnProperty("unfinishedJourney")){
+      var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      if(PersistenceAttributes.hasOwnProperty("State")){
+        SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        SessionAttributes.unfinishedJourney = true;
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        speechText = `Oh, it looks like you were in the middle of `
+        +`learning about ${PersistenceAttributes.Exploring}, would you like to continue?`;
+        
+        return handlerInput.responseBuilder
+          .speak(speechText)
+          .withShouldEndSession(false)
+          .getResponse();
+      }
+    }else{
+      delete SessionAttributes.unfinishedJourney;
+      if(request.intent.name === 'AMAZON.YesIntent'){
+        SessionAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        return ExploringAChapter.handle(handlerInput);
+      }else if(request.intent.name === 'AMAZON.NoIntent'){
+        handlerInput.attributesManager.setPersistentAttributes({});
+        await handlerInput.attributesManager.savePersistentAttributes();
+      }
+    }
+ 
+    speechText = `Excited to know about some interesting festivals? `
+      + `Let's spin the magic wheel to see which festival we will learn about today. ` 
+      + ` <audio src="${OtherAudio.magic_wheel}"/>`;
+ 
+    if(request.intent.hasOwnProperty("slots") 
+        &&  request.intent.slots.hasOwnProperty("festival")
+        && request.intent.slots.festival.hasOwnProperty('value')){
+      
+      var givenFestival = request.intent.slots.festival.value;
+      givenFestival = givenFestival.toLowerCase();
+      var index = Keys.findIndex((ele) => ele === givenFestival);
+      console.log(givenFestival);
+      if(index == -1){
+        speechText = `Oh no, simba don't know much about ${givenFestival}, but he knows ${RandomFestival} is amazing!`
+        + `Would you like to know about ${RandomFestival}? `;
+      }else{
+        SessionAttributes.Exploring = givenFestival;
+        SessionAttributes.Scene = 0; 
+        SessionAttributes.State = 'ExploringFestival';
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+        return ExploringAChapter.handle(handlerInput);
+      }
+    }else{
+      speechText += ` we got ${RandomFestival}, `
+      + `Would you like to know about ${RandomFestival}?`;
+    }
+ 
+    SessionAttributes.SuggestedFestival = RandomFestival;
+    SessionAttributes.State = "SuggestedFestival";
+    SessionAttributes.SuggestedFestivalCount = 1;
+    handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+ 
     return handlerInput.responseBuilder
-      .speak(requestAttributes.t('FALLBACK_MESSAGE'))
-      .reprompt(requestAttributes.t('FALLBACK_REPROMPT'))
+      .speak(speechText)
+      .withShouldEndSession(false)
       .getResponse();
   },
 };
 
-const ExitHandler = {
+const ExploringAChapter = {
   canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && (request.intent.name === 'AMAZON.CancelIntent'
-        || request.intent.name === 'AMAZON.StopIntent');
+    var request = handlerInput.requestEnvelope.request;
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    
+    return request.type === 'IntentRequest' && !(request.intent.name === 'ExploreWorldIntent')
+      && !(request.intent.name === 'ExploreFestivalIntent')
+      && (SessionAttributes.State === 'SuggestedCountry' 
+      || SessionAttributes.State === 'ExploringCountry' 
+      || SessionAttributes.State === 'SuggestedFestival'
+      || SessionAttributes.State === 'ExploringFestival');
+  },
+  async handle(handlerInput) {
+    var speechText = '';
+    var request = handlerInput.requestEnvelope.request;
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var Country = SessionAttributes.SuggestedCountry;
+    var Festival = SessionAttributes.SuggestedFestival;
+    var endSession =false;
+
+    if(SessionAttributes.State === 'SuggestedCountry'){
+      if(request.intent.name === 'AMAZON.NoIntent'){
+        var Keys = Object.keys(Script);
+        var index = Keys.findIndex((ele) => ele === Country);
+        
+        Country = Keys[(index+1)%3];
+        speechText = ` ok then let's spin the wheel again <audio src="${OtherAudio.magic_wheel}"/>`
+          +` looks like the wheel decided to take us to ${Country}. Would you like to explore ${Country}`;
+        SessionAttributes.SuggestedCountry = Country;
+        SessionAttributes.SuggestedCountryCount += 1;
+        
+        if(SessionAttributes.SuggestedCountryCount >= 4){
+          speechText = `Looks like I can't please you, so I give up, simba says bye`;
+        }
+        
+        return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(endSession)
+        .getResponse();
+
+      }else if(request.intent.name === 'AMAZON.YesIntent'){
+        SessionAttributes = {};
+        SessionAttributes.Exploring = Country;
+        SessionAttributes.Scene = 0; 
+        SessionAttributes.State = 'ExploringCountry';
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+      }
+    }
+    if(SessionAttributes.State === 'SuggestedFestival'){
+      if(request.intent.name === 'AMAZON.NoIntent'){
+        Keys = Object.keys(Script);
+        index = Keys.findIndex((ele) => ele === Festival);
+        
+        Festival = Keys[((index+1)%3)+3];
+        speechText = ` ok then let's spin the wheel again <audio src="${OtherAudio.magic_wheel}"/>`
+          +` we got ${Festival}. Would you like to know about ${Festival}? `;
+        SessionAttributes.SuggestedFestival = Festival;
+        SessionAttributes.SuggestedFestivalCount += 1;
+        
+        if(SessionAttributes.SuggestedFestivalCount >= 4){
+          speechText = `Looks like I can't please you, so I give up, simba says bye`;
+        }
+        
+        return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(endSession)
+        .getResponse();
+
+      }else if(request.intent.name === 'AMAZON.YesIntent'){
+        SessionAttributes = {};
+        SessionAttributes.Exploring = Festival;
+        SessionAttributes.Scene = 0; 
+        SessionAttributes.State = 'ExploringFestival';
+        handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
+      }
+    }
+
+    Country = SessionAttributes.Exploring;
+    Festival = SessionAttributes.Exploring;
+    var Scene = SessionAttributes.Scene;
+    var resp;
+    
+    if(SessionAttributes.State === 'ExploringCountry'){
+      if(Scene != 0){
+        speechText = Script[Country][Scene].wrongRes;
+        console.log("af "+speechText);
+        if(request.intent.hasOwnProperty("slots")
+          && request.intent.slots.hasOwnProperty("Answer") 
+          && request.intent.slots.Answer.hasOwnProperty("resolutions")){
+          console.log('1');
+          resp = request.intent.slots.Answer.resolutions;
+          resp = resp.resolutionsPerAuthority[0].values[0].value.name;
+          if(resp === Script[Country][Scene-1].response){
+            console.log('2');
+            speechText = Script[Country][Scene].correctRes;
+          }
+        }else if(Script[Country][Scene-1].response === 'yes' 
+          && request.intent.name === 'AMAZON.YesIntent'){
+            console.log('3');
+          speechText = Script[Country][Scene].correctRes;
+        }else if(request.intent.hasOwnProperty("slots")
+          &&  request.intent.slots.hasOwnProperty("animal")
+          && request.intent.slots.animal.hasOwnProperty("value") 
+          && request.intent.slots.animal.value === Script[Country][Scene-1].response){
+          speechText = Script[Country][Scene].correctRes;
+          console.log('4');
+        }
+        
+        var PersistenceAttributes = {
+          State: SessionAttributes.State,
+          Scene: SessionAttributes.Scene,
+          Exploring: SessionAttributes.Exploring,
+        };
+        handlerInput.attributesManager.setPersistentAttributes(PersistenceAttributes);
+        await handlerInput.attributesManager.savePersistentAttributes();
+      }
+      console.log(speechText);
+      speechText += Script[Country][Scene].dialog;
+      SessionAttributes.Scene += 1;
+      if(Script[Country][Scene].end){
+        speechText += ` You can explore another country or learn about another festival. What would you like to do next? `;
+        handlerInput.attributesManager.setSessionAttributes({});
+        handlerInput.attributesManager.setPersistentAttributes({});
+        await handlerInput.attributesManager.savePersistentAttributes();
+        endSession = false;
+      }
+    }
+
+    if(SessionAttributes.State === 'ExploringFestival'){
+      if(Scene != 0){
+        speechText = Script[Festival][Scene].wrongRes;
+        console.log("af "+speechText);
+        if(request.intent.hasOwnProperty("slots")
+          && request.intent.slots.hasOwnProperty("Answer") 
+          && request.intent.slots.Answer.hasOwnProperty("resolutions")){
+          console.log('1');
+          resp = request.intent.slots.Answer.resolutions;
+          resp = resp.resolutionsPerAuthority[0].values[0].value.name;
+          if(resp === Script[Festival][Scene-1].response){
+            console.log('2');
+            speechText = Script[Festival][Scene].correctRes;
+          }
+        }else if(Script[Festival][Scene-1].response === 'yes' 
+          && request.intent.name === 'AMAZON.YesIntent'){
+            console.log('3');
+          speechText = Script[Festival][Scene].correctRes;
+        }else if(request.intent.hasOwnProperty("slots")
+          &&  request.intent.slots.hasOwnProperty("animal")
+          && request.intent.slots.animal.hasOwnProperty("value") 
+          && request.intent.slots.animal.value === Script[Festival][Scene-1].response){
+          speechText = Script[Festival][Scene].correctRes;
+          console.log('4');
+        }
+        
+        PersistenceAttributes = {
+          State: SessionAttributes.State,
+          Scene: SessionAttributes.Scene,
+          Exploring: SessionAttributes.Exploring,
+        };
+        handlerInput.attributesManager.setPersistentAttributes(PersistenceAttributes);
+        await handlerInput.attributesManager.savePersistentAttributes();
+      }
+      console.log(speechText);
+      speechText += Script[Festival][Scene].dialog;
+      SessionAttributes.Scene += 1;
+      if(Script[Festival][Scene].end){
+        speechText += ` You can explore another country or learn about another festival. What would you like to do next? `;
+        handlerInput.attributesManager.setSessionAttributes({});
+        handlerInput.attributesManager.setPersistentAttributes({});
+        await handlerInput.attributesManager.savePersistentAttributes();
+        endSession = false;
+      }
+    }
+    
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .withShouldEndSession(endSession)
+      .getResponse();
+  },
+};
+
+const FallBackHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.FallbackIntent';
   },
   handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    var speechText ="Simba quite can't understand what you just said";
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    
+    if(SessionAttributes.State === 'suggested a rhyme'){
+      speechText = `Simba had difficulty understaing by what you said, `
+      + `and do you want listen to ${SessionAttributes.SuggestedRhyme} `
+      + `or try something else try answering with yes or no`;
+
+    }else if(SessionAttributes.State === 'SuggestedCountry'){
+      speechText = `Simba had difficulty understanding by what you said, `
+      + ` do you want to go to ${SessionAttributes.SuggestedCountry} `
+      + `or try something else. try answering with yes or no `;
+    }
     return handlerInput.responseBuilder
-      .speak(requestAttributes.t('STOP_MESSAGE'))
+      .speak(speechText)
+      .reprompt(speechText)
+      .getResponse();
+  },
+};
+
+const HelpIntentHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
+  },
+  handle(handlerInput) {
+    const speechText = 'You can say hello to me!';
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .getResponse();
+  },
+};
+
+const CancelAndStopIntentHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent'
+        || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
+  },
+  handle(handlerInput) {
+    const speechText = `Simba says Goodbye! come back later`;
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
       .getResponse();
   },
 };
 
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'SessionEndedRequest';
+    return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-    return handlerInput.responseBuilder.getResponse();
+
+    return handlerInput.responseBuilder
+    .speak(`Simba doesn't feel so good, can you come back later?`)
+    .getResponse();
+  },
+};
+
+const CantUnderstand = {
+  canHandle(handlerInput) {
+    return true;
+  },
+  handle(handlerInput) {
+    const speechText = `Simba quite can't understand what you just said`;
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .withShouldEndSession()
+      .getResponse();
   },
 };
 
@@ -111,342 +463,35 @@ const ErrorHandler = {
   },
   handle(handlerInput, error) {
     console.log(`Error handled: ${error.message}`);
-    console.log(`Error stack: ${error.stack}`);
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
     return handlerInput.responseBuilder
-      .speak(requestAttributes.t('ERROR_MESSAGE'))
-      .reprompt(requestAttributes.t('ERROR_MESSAGE'))
+      .speak(`Simba dosn't feel so good can you come back later`)
       .getResponse();
   },
 };
 
-const LocalizationInterceptor = {
-  process(handlerInput) {
-    // Gets the locale from the request and initializes i18next.
-    const localizationClient = i18n.init({
-      lng: handlerInput.requestEnvelope.request.locale,
-      resources: languageStrings,
-      returnObjects: true
-    });
-    // Creates a localize function to support arguments.
-    localizationClient.localize = function localize() {
-      // gets arguments through and passes them to
-      // i18next using sprintf to replace string placeholders
-      // with arguments.
-      const args = arguments;
-      const value = i18n.t(...args);
-      // If an array is used then a random value is selected
-      if (Array.isArray(value)) {
-        return value[Math.floor(Math.random() * value.length)];
-      }
-      return value;
-    };
-    // this gets the request attributes and save the localize function inside
-    // it to be used in a handler by calling requestAttributes.t(STRING_ID, [args...])
-    const attributes = handlerInput.attributesManager.getRequestAttributes();
-    attributes.t = function translate(...args) {
-      return localizationClient.localize(...args);
-    }
-  }
-};
+function getPersistenceAdapter(tableName) {
+  // Not in Alexa Hosted Environment
+  return new ddbAdapter.DynamoDbPersistenceAdapter({
+    tableName: tableName,
+    createTable: true
+  });
+}
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
 exports.handler = skillBuilder
+  .withPersistenceAdapter(getPersistenceAdapter('Simba_series'))
   .addRequestHandlers(
-    GetNewFactHandler,
-    HelpHandler,
-    ExitHandler,
-    FallbackHandler,
+    LaunchRequestHandler,
+    FallBackHandler,
+    ExploreWorldIntent,
+    ExploreFestivalIntent,
+    ExploringAChapter,
+    HelpIntentHandler,
+    CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
+    CantUnderstand
   )
-  .addRequestInterceptors(LocalizationInterceptor)
   .addErrorHandlers(ErrorHandler)
-  .withCustomUserAgent('sample/basic-fact/v2')
   .lambda();
-
-// TODO: Replace this data with your own.
-// It is organized by language/locale.  You can safely ignore the locales you aren't using.
-// Update the name and messages to align with the theme of your skill
-
-const deData = {
-  translation: {
-    SKILL_NAME: 'Weltraumwissen',
-    GET_FACT_MESSAGE: 'Hier sind deine Fakten: ',
-    HELP_MESSAGE: 'Du kannst sagen, „Nenne mir einen Fakt über den Weltraum“, oder du kannst „Beenden“ sagen... Wie kann ich dir helfen?',
-    HELP_REPROMPT: 'Wie kann ich dir helfen?',
-    FALLBACK_MESSAGE: 'Die Weltraumfakten Skill kann dir dabei nicht helfen. Sie kann dir Fakten über den Raum erzählen, wenn du dannach fragst.',
-    FALLBACK_REPROMPT: 'Wie kann ich dir helfen?',
-    ERROR_MESSAGE: 'Es ist ein Fehler aufgetreten.',
-    STOP_MESSAGE: 'Auf Wiedersehen!',
-    FACTS:
-      [
-        'Ein Jahr dauert auf dem Merkur nur 88 Tage.',
-        'Die Venus ist zwar weiter von der Sonne entfernt, hat aber höhere Temperaturen als Merkur.',
-        'Venus dreht sich entgegen dem Uhrzeigersinn, möglicherweise aufgrund eines früheren Zusammenstoßes mit einem Asteroiden.',
-        'Auf dem Mars erscheint die Sonne nur halb so groß wie auf der Erde.',
-        'Jupiter hat den kürzesten Tag aller Planeten.',
-      ],
-  },
-};
-
-const dedeData = {
-  translation: {
-    SKILL_NAME: 'Weltraumwissen auf Deutsch',
-  },
-};
-
-const enData = {
-  translation: {
-    SKILL_NAME: 'Space Facts',
-    GET_FACT_MESSAGE: 'Here\'s your fact: ',
-    HELP_MESSAGE: 'You can say tell me a space fact, or, you can say exit... What can I help you with?',
-    HELP_REPROMPT: 'What can I help you with?',
-    FALLBACK_MESSAGE: 'The Space Facts skill can\'t help you with that.  It can help you discover facts about space if you say tell me a space fact. What can I help you with?',
-    FALLBACK_REPROMPT: 'What can I help you with?',
-    ERROR_MESSAGE: 'Sorry, an error occurred.',
-    STOP_MESSAGE: 'Goodbye!',
-    FACTS:
-      [
-        'A year on Mercury is just 88 days long.',
-        'Despite being farther from the Sun, Venus experiences higher temperatures than Mercury.',
-        'On Mars, the Sun appears about half the size as it does on Earth.',
-        'Jupiter has the shortest day of all the planets.',
-        'The Sun is an almost perfect sphere.',
-      ],
-  },
-};
-
-const enauData = {
-  translation: {
-    SKILL_NAME: 'Australian Space Facts',
-  },
-};
-
-const encaData = {
-  translation: {
-    SKILL_NAME: 'Canadian Space Facts',
-  },
-};
-
-const engbData = {
-  translation: {
-    SKILL_NAME: 'British Space Facts',
-  },
-};
-
-const eninData = {
-  translation: {
-    SKILL_NAME: 'Indian Space Facts',
-  },
-};
-
-const enusData = {
-  translation: {
-    SKILL_NAME: 'American Space Facts',
-  },
-};
-
-const esData = {
-  translation: {
-    SKILL_NAME: 'Curiosidades del Espacio',
-    GET_FACT_MESSAGE: 'Aquí está tu curiosidad: ',
-    HELP_MESSAGE: 'Puedes decir dime una curiosidad del espacio o puedes decir salir... Cómo te puedo ayudar?',
-    HELP_REPROMPT: 'Como te puedo ayudar?',
-    FALLBACK_MESSAGE: 'La skill Curiosidades del Espacio no te puede ayudar con eso.  Te puede ayudar a descubrir curiosidades sobre el espacio si dices dime una curiosidad del espacio. Como te puedo ayudar?',
-    FALLBACK_REPROMPT: 'Como te puedo ayudar?',
-    ERROR_MESSAGE: 'Lo sentimos, se ha producido un error.',
-    STOP_MESSAGE: 'Adiós!',
-    FACTS:
-        [
-          'Un año en Mercurio es de solo 88 días',
-          'A pesar de estar más lejos del Sol, Venus tiene temperaturas más altas que Mercurio',
-          'En Marte el sol se ve la mitad de grande que en la Tierra',
-          'Jupiter tiene el día más corto de todos los planetas',
-          'El sol es una esféra casi perfecta',
-        ],
-  },
-};
-
-const esesData = {
-  translation: {
-    SKILL_NAME: 'Curiosidades del Espacio para España',
-  },
-};
-
-const esmxData = {
-  translation: {
-    SKILL_NAME: 'Curiosidades del Espacio para México',
-  },
-};
-
-const esusData = {
-  translation: {
-    SKILL_NAME: 'Curiosidades del Espacio para Estados Unidos',
-  },
-};
-
-const frData = {
-  translation: {
-    SKILL_NAME: 'Anecdotes de l\'Espace',
-    GET_FACT_MESSAGE: 'Voici votre anecdote : ',
-    HELP_MESSAGE: 'Vous pouvez dire donne-moi une anecdote, ou, vous pouvez dire stop... Comment puis-je vous aider?',
-    HELP_REPROMPT: 'Comment puis-je vous aider?',
-    FALLBACK_MESSAGE: 'La skill des anecdotes de l\'espace ne peux vous aider avec cela. Je peux vous aider à découvrir des anecdotes sur l\'espace si vous dites par exemple, donne-moi une anecdote. Comment puis-je vous aider?',
-    FALLBACK_REPROMPT: 'Comment puis-je vous aider?',
-    ERROR_MESSAGE: 'Désolé, une erreur est survenue.',
-    STOP_MESSAGE: 'Au revoir!',
-    FACTS:
-        [
-          'Une année sur Mercure ne dure que 88 jours.',
-          'En dépit de son éloignement du Soleil, Vénus connaît des températures plus élevées que sur Mercure.',
-          'Sur Mars, le Soleil apparaît environ deux fois plus petit que sur Terre.',
-          'De toutes les planètes, Jupiter a le jour le plus court.',
-          'Le Soleil est une sphère presque parfaite.',
-        ],
-  },
-};
-
-const frfrData = {
-  translation: {
-    SKILL_NAME: 'Anecdotes françaises de l\'espace',
-  },
-};
-
-const frcaData = {
-  translation: {
-    SKILL_NAME: 'Anecdotes canadiennes de l\'espace',
-  },
-};
-
-const hiData = {
-  translation: {
-    SKILL_NAME: 'अंतरिक्ष facts',
-    GET_FACT_MESSAGE: 'ये लीजिए आपका fact: ',
-    HELP_MESSAGE: 'आप मुझे नया fact सुनाओ बोल सकते हैं या फिर exit भी बोल सकते हैं... आप क्या करना चाहेंगे?',
-    HELP_REPROMPT: 'मैं आपकी किस प्रकार से सहायता कर सकती हूँ?',
-    ERROR_MESSAGE: 'सॉरी, मैं वो समज नहीं पायी. क्या आप repeat कर सकते हैं?',
-    STOP_MESSAGE: 'अच्छा bye, फिर मिलते हैं',
-    FACTS:
-      [
-        'बुध गृह में एक साल में केवल अठासी दिन होते हैं',
-        'सूरज से दूर होने के बावजूद, Venus का तापमान Mercury से ज़्यादा होता हैं',
-        'Earth के तुलना से Mars में सूरज का size तक़रीबन आधा हैं',
-        'सारे ग्रहों में Jupiter का दिन सबसे कम हैं',
-        'सूरज का shape एकदम गेंद आकार में हैं'
-      ],
-  },
-};
-
-const hiinData = {
-  translation: {
-    SKILL_NAME: 'अंतरिक्ष फ़ैक्ट्स',
-  },
-}
-
-const itData = {
-  translation: {
-    SKILL_NAME: 'Aneddoti dallo spazio',
-    GET_FACT_MESSAGE: 'Ecco il tuo aneddoto: ',
-    HELP_MESSAGE: 'Puoi chiedermi un aneddoto dallo spazio o puoi chiudermi dicendo "esci"... Come posso aiutarti?',
-    HELP_REPROMPT: 'Come posso aiutarti?',
-    FALLBACK_MESSAGE: 'Non posso aiutarti con questo. Posso aiutarti a scoprire fatti e aneddoti sullo spazio, basta che mi chiedi di dirti un aneddoto. Come posso aiutarti?',
-    FALLBACK_REPROMPT: 'Come posso aiutarti?',
-    ERROR_MESSAGE: 'Spiacenti, si è verificato un errore.',
-    STOP_MESSAGE: 'A presto!',
-    FACTS:
-      [
-        'Sul pianeta Mercurio, un anno dura solamente 88 giorni.',
-        'Pur essendo più lontana dal Sole, Venere ha temperature più alte di Mercurio.',
-        'Su Marte il sole appare grande la metà che su la terra. ',
-        'Tra tutti i pianeti del sistema solare, la giornata più corta è su Giove.',
-        'Il Sole è quasi una sfera perfetta.',
-      ],
-  },
-};
-
-const ititData = {
-  translation: {
-    SKILL_NAME: 'Aneddoti dallo spazio',
-  },
-};
-
-const jpData = {
-  translation: {
-    SKILL_NAME: '日本語版豆知識',
-    GET_FACT_MESSAGE: '知ってましたか？',
-    HELP_MESSAGE: '豆知識を聞きたい時は「豆知識」と、終わりたい時は「おしまい」と言ってください。どうしますか？',
-    HELP_REPROMPT: 'どうしますか？',
-    ERROR_MESSAGE: '申し訳ありませんが、エラーが発生しました',
-    STOP_MESSAGE: 'さようなら',
-    FACTS:
-      [
-        '水星の一年はたった88日です。',
-        '金星は水星と比べて太陽より遠くにありますが、気温は水星よりも高いです。',
-        '金星は反時計回りに自転しています。過去に起こった隕石の衝突が原因と言われています。',
-        '火星上から見ると、太陽の大きさは地球から見た場合の約半分に見えます。',
-        '木星の<sub alias="いちにち">1日</sub>は全惑星の中で一番短いです。',
-        '天の川銀河は約50億年後にアンドロメダ星雲と衝突します。',
-      ],
-  },
-};
-
-const jpjpData = {
-  translation: {
-    SKILL_NAME: '日本語版豆知識',
-  },
-};
-
-const ptbrData = {
-  translation: {
-    SKILL_NAME: 'Fatos Espaciais',
-  },
-};
-
-const ptData = {
-  translation: {
-    SKILL_NAME: 'Fatos Espaciais',
-    GET_FACT_MESSAGE: 'Aqui vai: ',
-    HELP_MESSAGE: 'Você pode me perguntar por um fato interessante sobre o espaço, ou, fexar a skill. Como posso ajudar?',
-    HELP_REPROMPT: 'O que vai ser?',
-    FALLBACK_MESSAGE: 'A skill fatos espaciais não tem uma resposta para isso. Ela pode contar informações interessantes sobre o espaço, é só perguntar. Como posso ajudar?',
-    FALLBACK_REPROMPT: 'Eu posso contar fatos sobre o espaço. Como posso ajudar?',
-    ERROR_MESSAGE: 'Desculpa, algo deu errado.',
-    STOP_MESSAGE: 'Tchau!',
-    FACTS:
-      [
-        'Um ano em Mercúrio só dura 88 dias.',
-        'Apesar de ser mais distante do sol, Venus é mais quente que Mercúrio.',
-        'Visto de marte, o sol parece ser metade to tamanho que nós vemos da terra.',
-        'Júpiter tem os dias mais curtos entre os planetas no nosso sistema solar.',
-        'O sol é quase uma esfera perfeita.',
-      ],
-  },
-};
-
-// constructs i18n and l10n data structure
-const languageStrings = {
-  'de': deData,
-  'de-DE': dedeData,
-  'en': enData,
-  'en-AU': enauData,
-  'en-CA': encaData,
-  'en-GB': engbData,
-  'en-IN': eninData,
-  'en-US': enusData,
-  'es': esData,
-  'es-ES': esesData,
-  'es-MX': esmxData,
-  'es-US': esusData,
-  'fr': frData,
-  'fr-FR': frfrData,
-  'fr-CA': frcaData,
-  'hi': hiData,
-  'hi-IN': hiinData,
-  'it': itData,
-  'it-IT': ititData,
-  'ja': jpData,
-  'ja-JP': jpjpData,
-  'pt': ptData,
-  'pt-BR': ptbrData,
-};
