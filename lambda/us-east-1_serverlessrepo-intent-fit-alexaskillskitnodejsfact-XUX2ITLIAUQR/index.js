@@ -57,40 +57,57 @@ const FitnessJourneyIntent = {
 
 
 const WorkoutIntent = {
-    canHandle(handlerInput) {
-      //var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-        && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || flag );
-    },
-    async handle(handlerInput) {
-      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-      //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-      
-      var speechText ='';
-      var Keys = Object.keys(Script);
-      var len = 2;
-      var index = RandomInt(0,len);
-      var exercise = Keys[index];
-      var score = SessionAttributes.Score;
-      console.log(score);
-      var level = 0;
-      if (score == 3){
-        level = 1;
-      }
-      if (score <3){
-        level = 2;
-      }
-      speechText = Script[exercise][level].dialog;
-      speechText += `Great job! Eighter continue with the same category or tell me a different category.`;
+  canHandle(handlerInput) {
+    //var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || flag );
+  },
+  async handle(handlerInput) {
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    var speechText ='';
+    
+    /*
+    var score = SessionAttributes.Score;
+    var level = 0;
+    if (score == 3){
+      level = 1;
+    }
+    if (score <3){
+      level = 2;
+    }
+    */
 
-      SessionAttributes.Last = speechText;
-      
-      return handlerInput.responseBuilder
-        .speak(speechText)
-        .withShouldEndSession(false)
-        .getResponse();
-    },
-  };
+    var data = Script["exercises"];
+    var size=0,i;
+    for (i in data){
+      size++;
+    }
+
+    var index;
+    if(SessionAttributes.hasOwnProperty("WorkoutIndex")){
+      if (SessionAttributes.WorkoutIndex == "-1"){
+        index = RandomInt(0,(size-1));  
+      }
+      else{
+        index = (SessionAttributes.WorkoutIndex + 1)%size;
+      }
+    }
+    var exerciseName = data[index]["name"];
+    var exerciseDescription = data[index]["decription"];
+
+    speechText = `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription}. `
+    speechText += `Great job! Eighter continue with the same category or tell me a different category.`;
+
+    SessionAttributes.Last = speechText;
+    SessionAttributes.WorkoutIndex = index;
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .withShouldEndSession(false)
+      .getResponse();
+  },
+};
 
   const ChangeCategoryIntent = {
     canHandle(handlerInput) {
