@@ -9,8 +9,7 @@ const Script = require('./Script.js');
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
 };
- 
-var i;
+
 var flag=false;
 var last;
 	
@@ -22,9 +21,9 @@ const LaunchRequestHandler = {
     const speechText = `Welcome to Intent Fitness, the fun way to train both your mind and your body. 
     You can ask for an interesting fitness fact or start your fitness journey. What would you like to do?`;
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
- 
+
     SessionAttributes.Last = speechText;
- 
+
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(false)
@@ -55,6 +54,7 @@ const FitnessJourneyIntent = {
       .getResponse();
   },
 };
+
 
 const WorkoutIntent = {
     canHandle(handlerInput) {
@@ -118,47 +118,53 @@ async function askQuestion(handlerInput) {
   SessionAttributes.AnswerAwaiting = true;
   var ques, ans;
   var URL = SessionAttributes.URL;
-  var data;
+
   if(!SessionAttributes.hasOwnProperty('Data')){
     await getRemoteData(URL)
     .then((response) => {
-      data = JSON.parse(response);
-      i = 0;
+      var data = JSON.parse(response);
+      SessionAttributes.Data = data;
+      var i = 0;
+      SessionAttributes.Count = i;
     });
   }
+
+  var data = SessionAttributes.Data;
+  var i = SessionAttributes.Count;
   ques = data.results[i%5].question;
   ans = data.results[i%5].correct_answer;
   var options = data.results[i%5].incorrect_answers;
   options[options.length] = ans;
   SessionAttributes.Options = options;
   SessionAttributes.PrevAnswer = ans;
-  SessionAttributes.Data = data;
-  i++;
-  SessionAttributes.Count = i;
+  SessionAttributes.Count++;
   
   var speechText = ques;
   var choice = RandomInt(0,3);
-  map = new Object();
- 
+  var map = new Object();
+
   map[options[choice%4]] = 'option one';
   map[options[(choice+1)%4]] = 'option two';
   map[options[(choice+2)%4]] = 'option three';
   map[options[(choice+3)%4]] = 'option four';
   console.log(map);
- 
+  SessionAttributes.OMap = map;
+
   speechText += ` Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
                 option C - ${options[(choice+2)%4]}, option D - ${options[(choice+3)%4]} `;
- 
+
+
   handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
   SessionAttributes.Last = speechText;
   return speechText;
 }
- 
+
 const QuizIntent = {
   canHandle(handlerInput) {
-    var request = handlerInput.requestEnvelope.request;
+    const request = handlerInput.requestEnvelope.request;
+    const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     return request.type === 'IntentRequest' && !(request.intent.name === 'FitnessJourney')
-      && request.intent.name === 'QuizIntent';
+      && request.intent.name === 'QuizIntent' && !(SessionAttributes.AnswerAwaiting);
   },
   async handle(handlerInput) {
     var speechText = '';
@@ -206,14 +212,14 @@ const QuizIntent = {
     var ques = await askQuestion(handlerInput);
     speechText += ques;
     SessionAttributes.Last = speechText;
- 
+
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(endSession)
       .getResponse();
   },
 };
- 
+
 const AnswerIntent = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -228,23 +234,23 @@ const AnswerIntent = {
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const request = handlerInput.requestEnvelope.request;
     const answerSlot = request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name;
- 
+
     const prevAnswer = SessionAttributes.PrevAnswer;
     var speakOutput;
-    console.log(answerSlot);
-    console.log(map[prevAnswer]);
- 
+
+    if(SessionAttributes.OMap[prevAnswer] == answerSlot) {
+      console.log('Correct');
+      speakOutput = "That answer is correct. ";
+      SessionAttributes.Score += 1;
+    }
+    else{
+      speakOutput = "That answer is wrong. ";
+    }
     
-    // if(map[prevAnswer] == answerSlot) {
-    //   speakOutput = "That answer is correct. ";
-    //   SessionAttributes.Score += 1;
-    // }
-    // else{
-    //   speakOutput = "That answer is wrong. ";
-    // }
-    if(SessionAttributes.Count<5){
+    if(SessionAttributes.Count<6){
       var intm = await askQuestion(handlerInput);
-      speakOutput += intm; 
+      speakOutput += 'Next question is. ';
+      speakOutput += intm;
       SessionAttributes.Last=intm;
     }
     else{
@@ -255,7 +261,7 @@ const AnswerIntent = {
     handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
     last=speakOutput;
     SessionAttributes.Last = last;
- 
+
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .reprompt(speakOutput)
@@ -263,7 +269,7 @@ const AnswerIntent = {
       .getResponse();
   }
 };
- 
+
 const CancelAndStopIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
