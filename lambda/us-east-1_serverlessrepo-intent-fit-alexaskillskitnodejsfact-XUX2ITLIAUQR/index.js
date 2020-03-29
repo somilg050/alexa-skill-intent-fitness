@@ -1,8 +1,10 @@
 /* eslint-disable  func-names */
 /* eslint-disable  no-console */
-
+ 
 const Alexa = require('ask-sdk-core');
 //const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
+
+const Script = require('./Script.js');
 
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
@@ -37,7 +39,7 @@ const FitnessJourneyIntent = {
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     var speechText = '';
-
+ 
     speechText = `Let's get you started on your fitness journey! 
     The game goes like this, we ask 5 questions from the category of your choice.
     Based on your score out of 5, we set the difficulty level of your exercise.
@@ -53,11 +55,70 @@ const FitnessJourneyIntent = {
   },
 };
 
+
+const WorkoutIntent = {
+    canHandle(handlerInput) {
+      //var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || flag );
+    },
+    async handle(handlerInput) {
+      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      
+      var speechText ='';
+      var Keys = Object.keys(Script);
+      var len = 2;
+      var index = RandomInt(0,len);
+      var exercise = Keys[index];
+      var score = SessionAttributes.Score;
+      console.log(score);
+      var level = 0;
+      if (score == 3){
+        level = 1;
+      }
+      if (score <3){
+        level = 2;
+      }
+      speechText = Script[exercise][level].dialog;
+      speechText += `Great job! Eighter continue with the same category or tell me a different category.`;
+
+      SessionAttributes.Last = speechText;
+      
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
+
+  const ChangeCategoryIntent = {
+    canHandle(handlerInput) {
+      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && (handlerInput.requestEnvelope.request.intent.name === 'ChangeCategory');
+    },
+    async handle(handlerInput) {
+      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+      var speechText = `Looks like you want to change the category of questions. Tell me what category you want?`;
+
+      SessionAttributes.Last = speechText;
+      
+      return handlerInput.responseBuilder
+        .speak(speechText)
+        .withShouldEndSession(false)
+        .getResponse();
+    },
+  };
+ 
+var map;
+ 
 async function askQuestion(handlerInput) {
   const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   SessionAttributes.AnswerAwaiting = true;
   var ques, ans;
   var URL = SessionAttributes.URL;
+
   if(!SessionAttributes.hasOwnProperty('Data')){
     await getRemoteData(URL)
     .then((response) => {
@@ -81,6 +142,7 @@ async function askQuestion(handlerInput) {
   var speechText = ques;
   var choice = RandomInt(0,3);
   var map = new Object();
+
   map[options[choice%4]] = 'option one';
   map[options[(choice+1)%4]] = 'option two';
   map[options[(choice+2)%4]] = 'option three';
@@ -90,6 +152,7 @@ async function askQuestion(handlerInput) {
 
   speechText += ` Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
                 option C - ${options[(choice+2)%4]}, option D - ${options[(choice+3)%4]} `;
+
 
   handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
   SessionAttributes.Last = speechText;
@@ -113,7 +176,7 @@ const QuizIntent = {
     if(request.intent.name === 'AMAZON.StopIntent' || request.intent.name === 'AMAZON.CancelIntent'){
       return CancelAndStopIntentHandler.handle(handlerInput);
     }
-
+ 
     var URL = `https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple`;
     var categorySlot;
     if(handlerInput.requestEnvelope
@@ -215,14 +278,14 @@ const CancelAndStopIntentHandler = {
   },
   handle(handlerInput) {
     const speechText = `Cancel And Stop Intent Handler`;
-
+ 
     return handlerInput.responseBuilder
       .speak(speechText)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
-
+ 
 const FallBackHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -238,7 +301,7 @@ const FallBackHandler = {
       .getResponse();
   },
 };
-
+ 
 const HelpIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -255,7 +318,7 @@ const HelpIntentHandler = {
       .getResponse();
   },
 };
-
+ 
 const RepeatHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -270,35 +333,35 @@ const RepeatHandler = {
       .getResponse();
   },
 };
-
+ 
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-
+ 
     return handlerInput.responseBuilder
     .speak(`Session Ended`)
     .withShouldEndSession(true)
     .getResponse();
   },
 };
-
+ 
 const ErrorHandler = {
   canHandle() {
     return true;
   },
   handle(handlerInput, error) {
     console.log(`Error handled: ${error.message}`);
-
+ 
     return handlerInput.responseBuilder
       .speak(`Error`)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
-
+ 
 // function getPersistenceAdapter(tableName) {
 //   // Not in Alexa Hosted Environment
 //   return new ddbAdapter.DynamoDbPersistenceAdapter({
@@ -306,7 +369,7 @@ const ErrorHandler = {
 //     createTable: true
 //   });
 // }
-
+ 
 const getRemoteData = function (url) {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https') ? require('https') : require('http');
@@ -321,9 +384,9 @@ const getRemoteData = function (url) {
     request.on('error', (err) => reject(err));
   });
 };
-
+ 
 const skillBuilder = Alexa.SkillBuilders.custom();
-
+ 
 exports.handler = skillBuilder
   //.withPersistenceAdapter(getPersistenceAdapter('Intent-Fitness'))
   .addRequestHandlers(
@@ -336,6 +399,8 @@ exports.handler = skillBuilder
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
+    WorkoutIntent,
+    ChangeCategoryIntent
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
