@@ -58,25 +58,22 @@ const FitnessJourneyIntent = {
 
 const WorkoutIntent = {
   canHandle(handlerInput) {
-    //var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    if(SessionAttributes.hasOwnProperty("WorkoutAllowed")){
+      var allowed = SessionAttributes.WorkoutAllowed;
+    }
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || flag );
+      && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || allowed );
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
     var speechText ='';
-    
-    /*
-    var score = SessionAttributes.Score;
-    var level = 0;
-    if (score == 3){
-      level = 1;
+
+    if(SessionAttributes.hasOwnProperty("WorkoutAllowed")){
+      var allowed = SessionAttributes.WorkoutAllowed;
     }
-    if (score <3){
-      level = 2;
-    }
-    */
+    allowed = true;
 
     var data = Script["exercises"];
     var size=0,i;
@@ -84,23 +81,80 @@ const WorkoutIntent = {
       size++;
     }
 
+    if(!(SessionAttributes.hasOwnProperty("WorkoutIndex"))){
+      SessionAttributes.WorkoutIndex = -1;
+    }
     var index;
-    if(SessionAttributes.hasOwnProperty("WorkoutIndex")){
-      if (SessionAttributes.WorkoutIndex == "-1"){
-        index = RandomInt(0,(size-1));  
+    if (SessionAttributes.WorkoutIndex == "-1"){
+      index = RandomInt(0,(size-1));  
+    }
+    else{
+      index = (SessionAttributes.WorkoutIndex + 1)%size;
+    }
+
+    if(!(SessionAttributes.hasOwnProperty("WorkoutStatus"))){
+      SessionAttributes.WorkoutStatus = 0;
+    }
+    var status = SessionAttributes.WorkoutStatus;
+
+    var score =3;
+    if (SessionAttributes.hasOwnProperty("Score"))
+      score = SessionAttributes.Score;
+    if(score == 3 && status<2){
+      if (status==0){
+        speechText += `You'r score implies you are moderately fit as far as your knowledge is concerned. `
+        + `So let's first get you moderately fit physically too. We'll be doing 2 exercises in this round. `;
+        var exerciseName = data[index]["name"];
+        var exerciseDescription = data[index]["description"];
+        speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
+        index = (index+1)%size;
       }
-      else{
-        index = (SessionAttributes.WorkoutIndex + 1)%size;
+      if (status==1){
+        var exerciseName = data[index]["name"];
+        var exerciseDescription = data[index]["description"];
+        speechText += `well done! The next exercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
       }
     }
-    var exerciseName = data[index]["name"];
-    var exerciseDescription = data[index]["decription"];
+    if(score > 3 && status<3){
+      if (status==0){  
+        speechText = `You'r score implies you are extremely fit as far as your knowledge is concerned. `
+        + `So let's get you extremely fit physically too. We'll be doing 3 exercises in this round. `;
+        var exerciseName = data[index]["name"];
+        var exerciseDescription = data[index]["description"];
+        speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
+        index = (index+1)%size;
+      }
+      if (status==1){  
+        var exerciseName = data[index]["name"];
+        var exerciseDescription = data[index]["description"];
+        speechText += `Well done! The next excercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
+        index = (index+2)%size;
+      }
+      if (status==2){
+        var exerciseName = data[index]["name"];
+        var exerciseDescription = data[index]["description"];
+        speechText += `Good going! The last excercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
+      }
+    }
+    if(score < 3 && status<1){
+      speechText = `You'r score implies you are quiet week as far as your knowledge is concerned. `
+      + `So we won't be straining you much physically either. We'll be doing only 1 exercise in this round. `;
+      var exerciseName = data[index]["name"];
+      var exerciseDescription = data[index]["description"];
+      speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
+    }
 
-    speechText = `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription}. `
-    speechText += `Great job! Eighter continue with the same category or tell me a different category.`;
+    if(!((score<3 && status<1) || (score>3 && status<3) || (score==3 && status<2))){
+      speechText += `Great job! Eighter continue to next round with the same category or tell me a different category.`;
+      allowed = false;
+      status = 0;
+    }
 
-    SessionAttributes.Last = speechText;
+    status++;
+    SessionAttributes.WorkoutAllowed = allowed;
+    SessionAttributes.WorkoutStatus = status;
     SessionAttributes.WorkoutIndex = index;
+    SessionAttributes.Last = speechText;
 
     return handlerInput.responseBuilder
       .speak(speechText)
@@ -109,24 +163,47 @@ const WorkoutIntent = {
   },
 };
 
-  const ChangeCategoryIntent = {
-    canHandle(handlerInput) {
-      return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-        && (handlerInput.requestEnvelope.request.intent.name === 'ChangeCategory');
-    },
-    async handle(handlerInput) {
-      var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+const ChangeCategoryIntent = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'ChangeCategory');
+  },
+  async handle(handlerInput) {
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-      var speechText = `Looks like you want to change the category of questions. Tell me what category you want?`;
+    var speechText = `Looks like you want to change the category of questions. Tell me what category you want?`;
 
-      SessionAttributes.Last = speechText;
-      
-      return handlerInput.responseBuilder
-        .speak(speechText)
-        .withShouldEndSession(false)
-        .getResponse();
-    },
-  };
+    SessionAttributes.Last = speechText;
+    
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .withShouldEndSession(false)
+      .getResponse();
+  },
+};
+
+const ContinueIntent = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && (handlerInput.requestEnvelope.request.intent.name === 'Continue');
+  },
+  async handle(handlerInput) {
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    if(!(SessionAttributes.hasOwnProperty("WorkoutAllowed"))){
+      SessionAttributes.WorkoutAllowed = false;
+    }
+    var allowed = SessionAttributes.WorkoutAllowed;
+
+    if (allowed){
+      //call Workout intent;
+      return WorkoutIntent.handle(handlerInput);
+    }
+    else{
+      //call Quiz intent;
+      return QuizIntent.handle(handlerInput);
+    }
+  },
+};
  
 var map;
  
@@ -417,7 +494,8 @@ exports.handler = skillBuilder
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
     WorkoutIntent,
-    ChangeCategoryIntent
+    ChangeCategoryIntent,
+    ContinueIntent
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
