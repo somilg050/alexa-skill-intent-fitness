@@ -231,7 +231,8 @@ async function askQuestion(handlerInput) {
   ans = data.results[i%5].correct_answer;
   var options = data.results[i%5].incorrect_answers;
   options[options.length] = ans;
-  SessionAttributes.Options = options;
+
+  SessionAttributes.Ques = ques;
   SessionAttributes.PrevAnswer = ans;
   SessionAttributes.Count++;
   
@@ -243,12 +244,14 @@ async function askQuestion(handlerInput) {
   map[options[(choice+1)%4]] = 'option two';
   map[options[(choice+2)%4]] = 'option three';
   map[options[(choice+3)%4]] = 'option four';
-  console.log(map);
+
   SessionAttributes.OMap = map;
 
-  speechText += ` Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
+  var opts = ` Your Options are: option A - ${options[choice%4]}, option B - ${options[(choice+1)%4]}, 
                 option C - ${options[(choice+2)%4]}, option D - ${options[(choice+3)%4]} `;
+  speechText+=opts;
 
+  SessionAttributes.Options = opts;
 
   handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
   SessionAttributes.Last = speechText;
@@ -350,8 +353,7 @@ const AnswerIntent = {
       SessionAttributes.Last=intm;
     }
     else{
-      speakOutput += `Bye Bye`;
-      endSession = true;
+      speakOutput += `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `;
     }
     
     handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
@@ -415,14 +417,22 @@ const HelpIntentHandler = {
   },
 };
  
-const RepeatHandler = {
+const RepeatAnythingHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest' && (request.intent.name === 'AMAZON.RepeatIntent');
+    return request.type === 'IntentRequest' && request.intent.name === 'RepeatAnything';
   },
   handle(handlerInput) {
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const request = handlerInput.requestEnvelope.request;
     var speechOutput = SessionAttributes.Last;
+    if(request.intent.slots.QnA.resolutions.resolutionsPerAuthority[0].values[0].value.name === 'answer'){
+      speechOutput = SessionAttributes.Options;
+    }
+    else if(request.intent.slots.QnA.resolutions.resolutionsPerAuthority[0].values[0].value.name === 'question'){
+      speechOutput = SessionAttributes.Ques;
+      speechOutput += SessionAttributes.Options;
+    }
     return handlerInput.responseBuilder
       .speak(speechOutput)
       .withShouldEndSession(false)
@@ -491,7 +501,7 @@ exports.handler = skillBuilder
     FitnessJourneyIntent,
     QuizIntent,
     AnswerIntent,
-    RepeatHandler,
+    RepeatAnythingHandler,
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
