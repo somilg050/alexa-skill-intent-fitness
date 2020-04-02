@@ -1,0 +1,390 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "intent fitness",
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "FitnessJourney",
+          "slots": [],
+          "samples": [
+            "begin journey",
+            "begin my fitness journey",
+            "start my fitness journey",
+            "open fitness journey",
+            "start fitness journey",
+            "start",
+            "start fitness",
+            "start my fitness",
+            "start a game"
+          ]
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": [
+            "sorry i can't hear you",
+            "please repeat that",
+            "sorry i missed that",
+            "come again",
+            "can you repeat that",
+            "say that again",
+            "say again",
+            "repeat it",
+            "say it again"
+          ]
+        },
+        {
+          "name": "QuizIntent",
+          "slots": [
+            {
+              "name": "category",
+              "type": "category"
+            }
+          ],
+          "samples": [
+            "i will go with {category}",
+            "of {category}",
+            "from {category}",
+            "start {category}",
+            "{category}"
+          ]
+        },
+        {
+          "name": "AnswerIntent",
+          "slots": [
+            {
+              "name": "answer",
+              "type": "answer"
+            }
+          ],
+          "samples": [
+            "i will go with option {answer}",
+            "option {answer}",
+            "definitely it is {answer}",
+            "{answer} i guess",
+            "i think {answer}",
+            "is it {answer}",
+            "for sure it's {answer}",
+            "answer is {answer}",
+            "{answer}",
+            "it is {answer}"
+          ]
+        },
+        {
+          "name": "ChangeCategory",
+          "slots": [],
+          "samples": [
+            "different category"
+          ]
+        },
+        {
+          "name": "continue",
+          "slots": [],
+          "samples": [
+            "same category",
+            "continue with same category",
+            "continue",
+            "done"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "id": "0",
+              "name": {
+                "value": "random",
+                "synonyms": [
+                  "whatever you like",
+                  "whatever",
+                  "any",
+                  "anything",
+                  "Random"
+                ]
+              }
+            },
+            {
+              "id": "32",
+              "name": {
+                "value": "Cartoon and Animations",
+                "synonyms": [
+                  "Animations",
+                  "Cartoon"
+                ]
+              }
+            },
+            {
+              "id": "31",
+              "name": {
+                "value": "Anime and Manga",
+                "synonyms": [
+                  "Japanese Anime",
+                  "Manga",
+                  "Anime"
+                ]
+              }
+            },
+            {
+              "id": "30",
+              "name": {
+                "value": "Gadgets",
+                "synonyms": [
+                  "Technology",
+                  "Devices"
+                ]
+              }
+            },
+            {
+              "id": "29",
+              "name": {
+                "value": "Comics"
+              }
+            },
+            {
+              "id": "28",
+              "name": {
+                "value": "Vehicles",
+                "synonyms": [
+                  "Cars"
+                ]
+              }
+            },
+            {
+              "id": "27",
+              "name": {
+                "value": "Animals",
+                "synonyms": [
+                  "Wildlife"
+                ]
+              }
+            },
+            {
+              "id": "26",
+              "name": {
+                "value": "Celebrities",
+                "synonyms": [
+                  "Actors"
+                ]
+              }
+            },
+            {
+              "id": "25",
+              "name": {
+                "value": "Art"
+              }
+            },
+            {
+              "id": "24",
+              "name": {
+                "value": "Poilitics"
+              }
+            },
+            {
+              "id": "23",
+              "name": {
+                "value": "History"
+              }
+            },
+            {
+              "id": "22",
+              "name": {
+                "value": "Geography",
+                "synonyms": [
+                  "Geo"
+                ]
+              }
+            },
+            {
+              "id": "21",
+              "name": {
+                "value": "Sports",
+                "synonyms": [
+                  "Olympic",
+                  "Games"
+                ]
+              }
+            },
+            {
+              "id": "20",
+              "name": {
+                "value": "Mythology"
+              }
+            },
+            {
+              "id": "19",
+              "name": {
+                "value": "Mathematics",
+                "synonyms": [
+                  "Maths"
+                ]
+              }
+            },
+            {
+              "id": "18",
+              "name": {
+                "value": "Computers",
+                "synonyms": [
+                  "Laptop",
+                  "Computer"
+                ]
+              }
+            },
+            {
+              "id": "17",
+              "name": {
+                "value": "Science and Nature",
+                "synonyms": [
+                  "Nature",
+                  "Science"
+                ]
+              }
+            },
+            {
+              "id": "16",
+              "name": {
+                "value": "Board Games"
+              }
+            },
+            {
+              "id": "15",
+              "name": {
+                "value": "Video Games",
+                "synonyms": [
+                  "Console Games"
+                ]
+              }
+            },
+            {
+              "id": "14",
+              "name": {
+                "value": "Television",
+                "synonyms": [
+                  "TV",
+                  "T V"
+                ]
+              }
+            },
+            {
+              "id": "13",
+              "name": {
+                "value": "Musicals and Theatres",
+                "synonyms": [
+                  "Theatres",
+                  "Musical Theatres"
+                ]
+              }
+            },
+            {
+              "id": "12",
+              "name": {
+                "value": "Music",
+                "synonyms": [
+                  "Music Industry"
+                ]
+              }
+            },
+            {
+              "id": "11",
+              "name": {
+                "value": "Film",
+                "synonyms": [
+                  "movies",
+                  "Cinema"
+                ]
+              }
+            },
+            {
+              "id": "10",
+              "name": {
+                "value": "Books",
+                "synonyms": [
+                  "Literature",
+                  "Book"
+                ]
+              }
+            },
+            {
+              "id": "9",
+              "name": {
+                "value": "General Knowledge",
+                "synonyms": [
+                  "General",
+                  "G K",
+                  "GK"
+                ]
+              }
+            }
+          ],
+          "name": "category"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "option four",
+                "synonyms": [
+                  "option D",
+                  "D"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "option three",
+                "synonyms": [
+                  "option C",
+                  "C"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "option two",
+                "synonyms": [
+                  "option B",
+                  "B"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "option one",
+                "synonyms": [
+                  "option A",
+                  "A"
+                ]
+              }
+            }
+          ],
+          "name": "answer"
+        }
+      ],
+      "modelConfiguration": {
+        "fallbackIntentSensitivity": {
+          "level": "LOW"
+        }
+      }
+    }
+  },
+  "version": "13"
+}
