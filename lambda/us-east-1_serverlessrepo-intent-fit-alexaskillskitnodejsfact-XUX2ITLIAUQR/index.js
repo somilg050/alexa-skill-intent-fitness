@@ -97,9 +97,11 @@ const WorkoutIntent = {
     }
     var status = SessionAttributes.WorkoutStatus;
 
-    var score =3;
-    if (SessionAttributes.hasOwnProperty("Score"))
-      score = SessionAttributes.Score;
+    if (!(SessionAttributes.hasOwnProperty("Score"))){
+      SessionAttributes.Score = 3;
+    }
+    var score = SessionAttributes.Score;
+    
     if(score == 3 && status<2){
       if (status==0){
         speechText += `You'r score implies you are moderately fit as far as your knowledge is concerned. `
