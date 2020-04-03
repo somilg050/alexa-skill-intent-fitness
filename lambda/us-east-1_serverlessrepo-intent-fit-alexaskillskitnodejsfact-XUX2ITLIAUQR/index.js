@@ -63,7 +63,7 @@ const WorkoutIntent = {
       var allowed = SessionAttributes.WorkoutAllowed;
     }
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && (handlerInput.requestEnvelope.request.intent.name === 'Workout' || allowed );
+      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent' && allowed);
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
@@ -202,6 +202,7 @@ const ContinueIntent = {
     }
     else{
       //call Quiz intent;
+      SessionAttributes.sameCategory = true;
       return QuizIntent.handle(handlerInput);
     }
   },
