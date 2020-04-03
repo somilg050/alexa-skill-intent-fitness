@@ -150,7 +150,7 @@ const WorkoutIntent = {
     if(!((score<3 && status<1) || (score>3 && status<3) || (score==3 && status<2))){
       speechText += `Great job! Either continue to next round with the same category or tell me a different category. `;
       allowed = false;
-      status = 0;
+      status = -1;
     }
 
     status++;
@@ -209,19 +209,16 @@ const ContinueIntent = {
   },
 };
 
-
 async function getData(handlerInput) {
   const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   var URL = SessionAttributes.URL;
 
-  if(!SessionAttributes.hasOwnProperty('Data')){
-    await getRemoteData(URL)
-    .then((response) => {
-      var data = JSON.parse(response);
-      SessionAttributes.Data = data;
-      SessionAttributes.Count = 0;
-    });
-  }
+  await getRemoteData(URL)
+  .then((response) => {
+    var data = JSON.parse(response);
+    SessionAttributes.Data = data;
+    SessionAttributes.Count = 0;
+  });
 }
 
 function askQuestion(handlerInput) {
@@ -268,8 +265,9 @@ const QuizIntent = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    return request.type === 'IntentRequest' && !(request.intent.name === 'FitnessJourney')
-      && request.intent.name === 'QuizIntent' && !(SessionAttributes.AnswerAwaiting);
+    return (request.type === 'IntentRequest' && !(request.intent.name === 'FitnessJourney')
+      && request.intent.name === 'QuizIntent' && !(SessionAttributes.AnswerAwaiting) &&
+       (!request.intent.name === 'Continue') && (!request.intent.name === 'ChangeCategory'));
   },
   async handle(handlerInput) {
     var speechText = '';
@@ -278,10 +276,11 @@ const QuizIntent = {
     SessionAttributes.AnswerAwaiting = false;
     SessionAttributes.Score = 0;
     var endSession =false;
+
     if(request.intent.name === 'AMAZON.StopIntent' || request.intent.name === 'AMAZON.CancelIntent'){
       return CancelAndStopIntentHandler.handle(handlerInput);
     }
- 
+
     var URL = `https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple`;
     var categorySlot;
     if(handlerInput.requestEnvelope
@@ -293,10 +292,21 @@ const QuizIntent = {
       && handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0]
       && (handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0].status.code === "ER_SUCCESS_MATCH")){
       categorySlot = handlerInput.requestEnvelope.request.intent.slots['category'].value;
-      let categoryId = handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+      var categoryId = handlerInput.requestEnvelope.request.intent.slots.category.resolutions.resolutionsPerAuthority[0].values[0].value.id;
       if(categoryId != 0){
         speechText = `Here are your questions in ${categorySlot} category!! `;
         URL+=`&category=${categoryId}`;
+        SessionAttributes.URL = URL;
+        SessionAttributes.Category = categorySlot;
+      }
+      else{
+        speechText = `Here we go!! `;
+        SessionAttributes.URL = URL;
+      }
+    }
+    else if(SessionAttributes.SameCategory){
+      if(SessionAttributes.Category){
+        speechText = `Here are your questions in ${SessionAttributes.Category} category!! `;
       }
       else{
         speechText = `Here we go!! `;
@@ -309,12 +319,8 @@ const QuizIntent = {
       .withShouldEndSession(endSession)
       .getResponse();
     }
-    if(!flag){
-      speechText += `For each questions reply with A, B, C or D. `;
-      flag = true;
-    }
-
-    SessionAttributes.URL = URL;
+    
+    speechText += `For each questions reply with A, B, C or D. `;
     await getData(handlerInput);
 
     var ques = askQuestion(handlerInput);
@@ -367,6 +373,7 @@ const AnswerIntent = {
     else{
       speakOutput = `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `
       + `Now get ready for your workout session.. `;
+      SessionAttributes.AnswerAwaiting = false;
       SessionAttributes.Last = speakOutput;
       SessionAttributes.WorkoutAllowed = true;
       SessionAttributes.LastFlag = true;
