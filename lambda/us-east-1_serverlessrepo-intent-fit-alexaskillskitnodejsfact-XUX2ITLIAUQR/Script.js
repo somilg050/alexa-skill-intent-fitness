@@ -9,7 +9,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. `
                 + `20 <break time="1s"/> 19 <break time="1s"/> 18 <break time="1s"/> keep going ` 
                 + `<break time="7s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> good going `
-                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Ankle Taps",
             "name_original": "Ankle Taps",
@@ -37,7 +37,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `20 <break time="1s"/> 19 <break time="1s"/> 18 <break time="1s"/> keep going <break time="2s"/> ` 
                 + `This exercise works your Pecs, Deltoids, Triceps, Traps, Lats, Abs and Lower Back, Hip Flexors, Quads, Glutes and Calves `
-                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Bear Walk",
             "name_original": "Bear Walk",
@@ -73,11 +73,11 @@ module.exports = {
             "description": `Assume a plank position on the ground. You should be supporting your bodyweight on your toes and forearms, keeping your torso straight. <break time="1s"/> `
             + `Your forearms should be shoulder-width apart. This will be your starting position. <break time="1s"/>` 
             + `Pressing your palms firmly into the ground, extend through the elbows to raise your body from the ground. <break time="1s"/>`
-            + `Keep your torso rigid as you perform the movement.Slowly lower your forearms back to the ground by allowing the elbows to flex. <break time="1s"/>`
+            + `Keep your torso rigid as you perform the movement. Slowly lower your forearms back to the ground by allowing the elbows to flex. <break time="1s"/>`
             + `Repeat the exercise 10 time. `
             + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
             + `10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> keep going ` 
-            + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+            + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
             + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Body-Ups",
             "name_original": "Body-Ups",
@@ -108,7 +108,7 @@ module.exports = {
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going <break time="2s"/> ` 
                 + `Holding your arms straight out in front of you will help you keep the correct posture throughout the exercise. It's also helpful in maintaining posture to choose a point on the wall to focus on.`                
                 + `<break time="2s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
-                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="7s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Bodyweight Squats",
             "name_original": "Bodyweight Squats",
@@ -168,7 +168,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `20 <break time="3s"/> 19 <break time="3s"/> 18 <break time="3s"/> keep going `
                 + ` <break time="20s"/> 10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> just few more to go  `
-                + `<break time="14s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="14s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Fire Hydrant",
             "name_original": "Fire Hydrant",
@@ -195,7 +195,7 @@ module.exports = {
                 + `Do 15 repetitions.`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `15 <break time="3s"/> 14 <break time="3s"/> 13 <break time="3s"/> keep going `
-                + `<break time="25s"/> just a few more to go, 5 <break time="3s"/> 4 <break time="3s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="25s"/> just a few more to go, 5 <break time="3s"/> 4 <break time="3s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Full Sit Outs",
             "name_original": "Full Sit Outs",
@@ -282,7 +282,7 @@ module.exports = {
                 + `Repeat this 10 times. <break time="1s"/>`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> keep going `
-                + `<break time="15s"/> just a few more to go, 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="15s"/> just a few more to go, 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Isometric Wipers",
             "name_original": "Isometric Wipers",
@@ -312,7 +312,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going ` 
                 + `<break time="26s"/> just a few more to go <break time="1s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
-                + `<break time="5s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="5s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Jumping Jacks",
             "name_original": "Jumping jacks",
@@ -401,7 +401,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `20 <break time="2s"/> 19 <break time="2s"/> 18 <break time="2s"/> keep going ` 
                 + `<break time="14s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> just a few more to go `
-                + `<break time="13s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="13s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Reverse Crunch",
             "name_original": "Reverse Crunch",
@@ -481,7 +481,7 @@ module.exports = {
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `60 <break time="1s"/> 59 <break time="1s"/> 58 <break time="1s"/> keep going ` 
                 + `<break time="47s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> just a few more to go `
-                + `<break time="6s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax!<break time="2s"/>`
+                + `<break time="6s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Wall Pushup",
             "name_original": "Wall pushup",
@@ -516,7 +516,7 @@ module.exports = {
             + `Repeat the exercise 10 time. `
             + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
             + `10 <break time="12s"/> 9 <break time="12s"/> 8 <break time=12s"/> keep going ` 
-            + `<break time="80s"/> 3 <break time="12s"/> 2 <break time="12s"/> 1. Relax!<break time="2s"/>`
+            + `<break time="80s"/> 3 <break time="12s"/> 2 <break time="12s"/> 1. Relax! <break time="2s"/>`
             + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Wall Squat",
             "name_original": "Wall Squat",

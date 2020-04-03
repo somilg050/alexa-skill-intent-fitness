@@ -5,6 +5,7 @@ const Alexa = require('ask-sdk-core');
 //const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
 
 const Script = require('./Script.js');
+const Facts = require('./Facts.js');
 
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
@@ -18,18 +19,51 @@ const LaunchRequestHandler = {
   },
   handle(handlerInput) {
     const speechText = `Welcome to Intent Fitness, the fun way to train both your mind and your body. 
-    You can ask for an interesting fitness fact or start your fitness journey. What would you like to do?`;
+    You can ask for an interesting fitness fact or start your fitness journey. What would you like to do? `;
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
     SessionAttributes.Last = speechText;
 
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speakText)
       .withShouldEndSession(false)
       .getResponse();
   },
 };
-  
+
+const FitnessFactsIntent = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && handlerInput.requestEnvelope.request.intent.name === 'FitnessFacts';
+  },
+  async handle(handlerInput) {
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var speechText = '';
+    var data = Facts["facts"];
+    
+    if(!(SessionAttributes.hasOwnProperty("FactIndex"))){
+      SessionAttributes.FactIndex = RandomInt(0,(data.length-1));
+    }
+    var factIndex = SessionAttributes.FactIndex;
+
+    speechText = data[factIndex];
+    speechText += `That was your fact. You can ask for another interesting fitness fact or start your fitness journey. `
+      + `What would you like to do? `;
+    
+    factIndex++;
+
+    SessionAttributes.FactIndex = factIndex
+    SessionAttributes.Last = speechText;
+    
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speakText)
+      .withShouldEndSession(false)
+      .getResponse();
+  },
+};
+
 const FitnessJourneyIntent = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -49,6 +83,7 @@ const FitnessJourneyIntent = {
     
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speakText)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -148,9 +183,9 @@ const WorkoutIntent = {
     }
 
     if(!((score<3 && status<1) || (score>3 && status<3) || (score==3 && status<2))){
-      speechText += `Great job! Eighter continue to next round with the same category or tell me a different category.`;
+      speechText += `Great job! Either continue to next round with the same category or tell me a different category.`;
       allowed = false;
-      status = 0;
+      status = -1;
     }
 
     status++;
@@ -366,7 +401,7 @@ const AnswerIntent = {
     }
     else{
       speakOutput = `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `
-      + `Now get ready for your workout session.`;
+      + `Now get ready for your workout session. `;
       SessionAttributes.Last = speakOutput;
       SessionAttributes.WorkoutAllowed = true;
       SessionAttributes.LastFlag = true;
@@ -523,7 +558,8 @@ exports.handler = skillBuilder
     SessionEndedRequestHandler,
     WorkoutIntent,
     ChangeCategoryIntent,
-    ContinueIntent
+    ContinueIntent,
+    FitnessFactsIntent
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
