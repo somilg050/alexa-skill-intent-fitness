@@ -63,7 +63,7 @@ const WorkoutIntent = {
       var allowed = SessionAttributes.WorkoutAllowed;
     }
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent' && allowed);
+      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent' || allowed );
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
@@ -202,7 +202,7 @@ const ContinueIntent = {
     }
     else{
       //call Quiz intent;
-      SessionAttributes.sameCategory = true;
+      SessionAttributes.SameCategory = true;
       return QuizIntent.handle(handlerInput);
     }
   },
@@ -338,13 +338,16 @@ const AnswerIntent = {
     const prevAnswer = SessionAttributes.PrevAnswer;
     var speakOutput;
 
-    if(SessionAttributes.OMap[prevAnswer] == answerSlot) {
+    if(SessionAttributes.OMap[prevAnswer] === answerSlot) {
       console.log('Correct');
       speakOutput = "That answer is correct. ";
       SessionAttributes.Score += 1;
     }
+    else if(answerSlot === 'no idea'){
+      speakOutput = `No worry, Correct answer is ${prevAnswer}. `;
+    }
     else{
-      speakOutput = "That answer is wrong. ";
+      speakOutput = `That answer is wrong. Correct answer is ${prevAnswer}. `;
     }
     
     if(SessionAttributes.Count<6){
@@ -358,8 +361,7 @@ const AnswerIntent = {
     }
     
     handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
-    last=speakOutput;
-    SessionAttributes.Last = last;
+    SessionAttributes.Last = speakOutput;
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
