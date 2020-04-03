@@ -61,12 +61,17 @@ const WorkoutIntent = {
       var allowed = SessionAttributes.WorkoutAllowed;
     }
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-      && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent' || allowed );
+      && allowed;
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
     var speechText ='';
+
+    if (SessionAttributes.hasOwnProperty("LastFlag") && SessionAttributes.LastFlag){
+      speechText = SessionAttributes.Last;
+      SessionAttributes.LastFlag = false;
+    }
 
     if(SessionAttributes.hasOwnProperty("WorkoutAllowed")){
       var allowed = SessionAttributes.WorkoutAllowed;
@@ -115,7 +120,7 @@ const WorkoutIntent = {
     }
     if(score > 3 && status<3){
       if (status==0){  
-        speechText = `You'r score implies you are extremely fit as far as your knowledge is concerned. `
+        speechText += `You'r score implies you are extremely fit as far as your knowledge is concerned. `
         + `So let's get you extremely fit physically too. We'll be doing 3 exercises in this round. `;
         exerciseName = data[index]["name"];
         exerciseDescription = data[index]["description"];
@@ -135,7 +140,7 @@ const WorkoutIntent = {
       }
     }
     if(score < 3 && status<1){
-      speechText = `You'r score implies you are quiet week as far as your knowledge is concerned. `
+      speechText += `You'r score implies you are quiet week as far as your knowledge is concerned. `
       + `So we won't be straining you much physically either. We'll be doing only 1 exercise in this round. `;
       exerciseName = data[index]["name"];
       exerciseDescription = data[index]["description"];
@@ -360,7 +365,12 @@ const AnswerIntent = {
       SessionAttributes.Last=intm;
     }
     else{
-      speakOutput += `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `;
+      speakOutput = `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `
+      + `Now get ready for your workout session.`;
+      SessionAttributes.Last = speakOutput;
+      SessionAttributes.WorkoutAllowed = true;
+      SessionAttributes.LastFlag = true;
+      return WorkoutIntent.handle(handlerInput);
     }
     
     handlerInput.attributesManager.setSessionAttributes(SessionAttributes);
