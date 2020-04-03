@@ -2,7 +2,7 @@
   "deploy_settings": {
     "default": {
       "skill_id": "amzn1.ask.skill.feca6269-47cd-46d2-b2bc-88e60c5bc78e",
-      "was_cloned": true,
+      "was_cloned": false,
       "merge": {},
       "resources": {
         "manifest": {
@@ -18,10 +18,15 @@
             "codeUri": "lambda/us-east-1_serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "functionName": "serverlessrepo-intent-fit-alexaskillskitnodejsfact-XUX2ITLIAUQR",
             "handler": "index.handler",
-            "revisionId": "40701c48-c89a-4bd8-9ff6-e90b310f20fb",
+            "revisionId": "a29c37bf-3c04-46cd-8e7b-b7f06f721125",
             "runtime": "nodejs10.x"
           }
-        ]
+        ],
+        "interactionModel": {
+          "en-IN": {
+            "eTag": "81e4df9ef793a15beddfc7f853fa644c"
+          }
+        }
       }
     }
   }

@@ -11,8 +11,7 @@ var RandomInt = (min, max) => {
 };
 
 var flag=false;
-var last;
-	
+
 const LaunchRequestHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
@@ -55,7 +54,6 @@ const FitnessJourneyIntent = {
   },
 };
 
-
 const WorkoutIntent = {
   canHandle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
@@ -76,10 +74,7 @@ const WorkoutIntent = {
     allowed = true;
 
     var data = Script["exercises"];
-    var size=0,i;
-    for (i in data){
-      size++;
-    }
+    var size=data.length;
 
     if(!(SessionAttributes.hasOwnProperty("WorkoutIndex"))){
       SessionAttributes.WorkoutIndex = -1;
@@ -101,19 +96,20 @@ const WorkoutIntent = {
       SessionAttributes.Score = 3;
     }
     var score = SessionAttributes.Score;
+    var exerciseName, exerciseDescription;
     
     if(score == 3 && status<2){
       if (status==0){
         speechText += `You'r score implies you are moderately fit as far as your knowledge is concerned. `
         + `So let's first get you moderately fit physically too. We'll be doing 2 exercises in this round. `;
-        var exerciseName = data[index]["name"];
-        var exerciseDescription = data[index]["description"];
+        exerciseName = data[index]["name"];
+        exerciseDescription = data[index]["description"];
         speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
         index = (index+1)%size;
       }
       if (status==1){
-        var exerciseName = data[index]["name"];
-        var exerciseDescription = data[index]["description"];
+        exerciseName = data[index]["name"];
+        exerciseDescription = data[index]["description"];
         speechText += `well done! The next exercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
       }
     }
@@ -121,28 +117,28 @@ const WorkoutIntent = {
       if (status==0){  
         speechText = `You'r score implies you are extremely fit as far as your knowledge is concerned. `
         + `So let's get you extremely fit physically too. We'll be doing 3 exercises in this round. `;
-        var exerciseName = data[index]["name"];
-        var exerciseDescription = data[index]["description"];
+        exerciseName = data[index]["name"];
+        exerciseDescription = data[index]["description"];
         speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
         index = (index+1)%size;
       }
       if (status==1){  
-        var exerciseName = data[index]["name"];
-        var exerciseDescription = data[index]["description"];
+        exerciseName = data[index]["name"];
+        exerciseDescription = data[index]["description"];
         speechText += `Well done! The next excercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
         index = (index+2)%size;
       }
       if (status==2){
-        var exerciseName = data[index]["name"];
-        var exerciseDescription = data[index]["description"];
+        exerciseName = data[index]["name"];
+        exerciseDescription = data[index]["description"];
         speechText += `Good going! The last excercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
       }
     }
     if(score < 3 && status<1){
       speechText = `You'r score implies you are quiet week as far as your knowledge is concerned. `
       + `So we won't be straining you much physically either. We'll be doing only 1 exercise in this round. `;
-      var exerciseName = data[index]["name"];
-      var exerciseDescription = data[index]["description"];
+      exerciseName = data[index]["name"];
+      exerciseDescription = data[index]["description"];
       speechText += `Let's get to work now. We'll do ${exerciseName}. ${exerciseDescription} `;
     }
 
@@ -207,13 +203,10 @@ const ContinueIntent = {
     }
   },
 };
- 
-var map;
- 
-async function askQuestion(handlerInput) {
+
+
+async function getData(handlerInput) {
   const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-  SessionAttributes.AnswerAwaiting = true;
-  var ques, ans;
   var URL = SessionAttributes.URL;
 
   if(!SessionAttributes.hasOwnProperty('Data')){
@@ -221,15 +214,22 @@ async function askQuestion(handlerInput) {
     .then((response) => {
       var data = JSON.parse(response);
       SessionAttributes.Data = data;
-      var i = 0;
-      SessionAttributes.Count = i;
+      SessionAttributes.Count = 0;
     });
   }
+}
 
+function askQuestion(handlerInput) {
+  const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+  SessionAttributes.AnswerAwaiting = true;
+  
+  var ques, ans;
   var data = SessionAttributes.Data;
   var i = SessionAttributes.Count;
+
   ques = data.results[i%5].question;
   ans = data.results[i%5].correct_answer;
+  
   var options = data.results[i%5].incorrect_answers;
   options[options.length] = ans;
 
@@ -241,10 +241,10 @@ async function askQuestion(handlerInput) {
   var choice = RandomInt(0,3);
   var map = new Object();
 
-  map[options[choice%4]] = 'option one';
-  map[options[(choice+1)%4]] = 'option two';
-  map[options[(choice+2)%4]] = 'option three';
-  map[options[(choice+3)%4]] = 'option four';
+  map[options[choice%4]] = 'A';
+  map[options[(choice+1)%4]] = 'B';
+  map[options[(choice+2)%4]] = 'C';
+  map[options[(choice+3)%4]] = 'D';
 
   SessionAttributes.OMap = map;
 
@@ -308,8 +308,11 @@ const QuizIntent = {
       speechText += `For each questions reply with A, B, C or D. `;
       flag = true;
     }
+
     SessionAttributes.URL = URL;
-    var ques = await askQuestion(handlerInput);
+    await getData(handlerInput);
+
+    var ques = askQuestion(handlerInput);
     speechText += ques;
     SessionAttributes.Last = speechText;
 
@@ -350,8 +353,8 @@ const AnswerIntent = {
       speakOutput = `That answer is wrong. Correct answer is ${prevAnswer}. `;
     }
     
-    if(SessionAttributes.Count<6){
-      var intm = await askQuestion(handlerInput);
+    if(SessionAttributes.Count<5){
+      var intm = askQuestion(handlerInput);
       speakOutput += 'Next question is. ';
       speakOutput += intm;
       SessionAttributes.Last=intm;
