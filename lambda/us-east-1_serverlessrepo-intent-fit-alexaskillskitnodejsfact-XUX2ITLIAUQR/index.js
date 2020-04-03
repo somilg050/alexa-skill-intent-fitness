@@ -118,7 +118,7 @@ const WorkoutIntent = {
         speechText += `well done! The next exercise we'll be doing is ${exerciseName}. ${exerciseDescription} `;
       }
     }
-    if(score > 3 && status<3){
+    if(score > 3 && status < 3){
       if (status==0){  
         speechText += `You'r score implies you are extremely fit as far as your knowledge is concerned. `
         + `So let's get you extremely fit physically too. We'll be doing 3 exercises in this round. `;
@@ -148,7 +148,7 @@ const WorkoutIntent = {
     }
 
     if(!((score<3 && status<1) || (score>3 && status<3) || (score==3 && status<2))){
-      speechText += `Great job! Eighter continue to next round with the same category or tell me a different category.`;
+      speechText += `Great job! Either continue to next round with the same category or tell me a different category. `;
       allowed = false;
       status = 0;
     }
@@ -366,7 +366,7 @@ const AnswerIntent = {
     }
     else{
       speakOutput = `WELL WELL WELL, That was the last question. Your Final score is ${SessionAttributes.Score}. `
-      + `Now get ready for your workout session.`;
+      + `Now get ready for your workout session.. `;
       SessionAttributes.Last = speakOutput;
       SessionAttributes.WorkoutAllowed = true;
       SessionAttributes.LastFlag = true;
