@@ -10,8 +10,6 @@ var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
 };
 
-var flag=false;
-
 const LaunchRequestHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
