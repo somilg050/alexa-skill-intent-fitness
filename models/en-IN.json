@@ -135,10 +135,6 @@
                         "continue",
                         "done"
                     ]
-                },
-                {
-                    "name": "AMAZON.YesIntent",
-                    "samples": []
                 }
             ],
             "types": [
@@ -379,6 +375,11 @@
                             "name": {
                                 "value": "no idea",
                                 "synonyms": [
+                                    "sorry no clue",
+                                    "sorry no idea",
+                                    "i don't know that one",
+                                    "i have no idea",
+                                    "i don't know",
                                     "nada",
                                     "i'm dumb",
                                     "sorry",
