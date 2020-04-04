@@ -133,7 +133,7 @@ module.exports = {
             "license_author": "aszc",
             "status": "2",
             "description": `With your feet raised approximately 30cm on a platform, align your shoulders, elbows and hands, then perform regular pushups. <break time="1s"/>`
-                + `This emphasises the clavicular fibers of the pectoralis major.</p>`
+                + `This emphasises the clavicular fibers of the pectoralis major. </p>`
                 + `Do as many decline pushups as you can. <break time="1s"/>`
                 + `Tell me to continue when you are done. `,
             "name": "Decline Pushups",
@@ -222,10 +222,10 @@ module.exports = {
             "status": "2",
             "description": `Get on a mat and lie on your back. <break time="1s"/>` 
                 + `Contract your abs, stretch your arms and legs and raise them (your head and shoulders will also be raised). <break time="1s"/>`
-                + `Make sure your lower back remains in contact with the mat.<break time="1s"/>`
+                + `Make sure your lower back remains in contact with the mat. <break time="1s"/>`
                 + `Hold the position for as long as you can. <break time="1s"/>`
                 + `Slowly get back to the initial position and repeat. <break time="1s"/>`
-                + `Do 10 repetitions.`
+                + `Do 10 repetitions. <break time="1s"/>`
                 + `Tell me to continue when you are done. `,
             "name": "Hollow Hold",
             "name_original": "Hollow Hold",
@@ -280,12 +280,12 @@ module.exports = {
             "license_author": "tinman",
             "status": "1",
             "description": `Stand with feet together and arms at the sides. <break time="1s"/>`
-                + `Jump to a position with the legs spread wide and the hands touching overhead <break time="1s"/>`
+                + `Jump to a position with the legs spread wide and the hands touching overhead. <break time="1s"/>`
                 + `Jump back to the initial position. Repeat! <break time="1s"/>`
                 + `Do 25 reps.`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going ` 
-                + `<break time="10s"/> just a few more to go <break time="2s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
+                + `<break time="9s"/> just a few more to go <break time="3s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
                 + `<break time="5s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Jumping Jacks",
@@ -341,7 +341,7 @@ module.exports = {
             "description": `Start with your body streched, your hands are shoulder-wide appart on the ground. <break time="1s"/>`
                 + `Push yourself off the ground till you strech your arms. <break time="1s"/>`
                 + `The back is always straight as well as the neck (always look to the ground). <break time="1s"/>`
-                + `Lower yourself to the initial position and repeat.`
+                + `Lower yourself to the initial position and repeat. <break time="1s"/>`
                 + `Do as many pushups as you can. <break time="1s"/>`
                 + `Tell me to continue when you are done. `,
             "name": "Push Ups",
@@ -425,7 +425,7 @@ module.exports = {
             "id": 359,
             "license_author": "Nash",
             "status": "2",
-            "description": `Handstand against a wall for support (chest facing wall).`
+            "description": `Handstand against a wall for support (chest facing wall). `
                 + `Asume the hand stand position against a wall with your chest facing the wall. <break time="1s"/>`
                 + `Hold the stand for as long as you can. <break time="1s"/>`
                 + `Do 3 reps. Remember to hold each repetition for as long as you can. <break time="1s"/>`
@@ -480,7 +480,8 @@ module.exports = {
             "license_author": "Blablabla",
             "status": "2",
             "description": `Find a nice flat piece of wall and stand with your back leaning against the wall. <break time="1s"/>` 
-            + `Slowly slide down the wall while moving your feet away from it, until your thighs are parallel to the ground and both your knees and your hips are bent at a 90° angle. <break time="1s"/>`
+            + `Slowly slide down the wall while moving your feet away from it, <break time="1s"/>`
+            + `until your thighs are parallel to the ground and both your knees and your hips are bent at a 90° angle. <break time="1s"/>`
             + `Cross your arms in front of your chest and hold this position for 20 seconds. <break time="1s"/>`
             + `Another variant you can try, put a big inflated rubber ball (like a small basketball) between your knees and squeeze the ball while holding the squat position <break time="1s"/>`
             + `Repeat the exercise 10 time. <break time="1s"/>`
