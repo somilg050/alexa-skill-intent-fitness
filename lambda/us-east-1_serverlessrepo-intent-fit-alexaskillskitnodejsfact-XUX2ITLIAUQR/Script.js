@@ -135,7 +135,7 @@ module.exports = {
             "description": `With your feet raised approximately 30cm on a platform, align your shoulders, elbows and hands, then perform regular pushups. <break time="1s"/>`
                 + `This emphasises the clavicular fibers of the pectoralis major.</p>`
                 + `Do as many decline pushups as you can. <break time="1s"/>`
-                + `Tell me to continue when you are done. <break time="40s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Decline Pushups",
             "name_original": "Decline Pushups",
             "creation_date": "2014-07-12",
@@ -163,10 +163,12 @@ module.exports = {
                 + `Return to the center and repeat on the opposite side. Continue, alternating sides. <break time="1s"/>`
                 + `If you wan to make it easier, Don’t raise your arm after you bend your leg behind you. `
                 + `If you wan to make it harder, Balance with your arm and leg extended for two counts. <break time="1s"/>`
-                + `Do 15 repetitions.`
+                + `Do 15 repetitions. <break time="1s"/>`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
-                + `15 <break time="3s"/> 14 <break time="3s"/> 13 <break time="3s"/> keep going `
-                + `<break time="25s"/> just a few more to go, 5 <break time="3s"/> 4 <break time="3s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
+                + `15 <break time="3s"/> 14 <break time="3s"/> 13 <break time="3s"/> 13 <break time="3s"/> 12 <break time="3s"/> `
+                + `15 <break time="3s"/> 11 <break time="3s"/> 10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> `
+                + `15 <break time="3s"/> 7 <break time="3s"/> 6 <break time="1s"/> `
+                + ` just a few more to go, 5 <break time="3s"/> 4 <break time="3s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Full Sit Outs",
             "name_original": "Full Sit Outs",
@@ -192,7 +194,7 @@ module.exports = {
             "description": `Lay down on your back, with your feet flat on the floor. <break time="1s"/>`
             + `Raise your hips up evenly as high as you can and hold for as long as you can. <break time="1s"/>`
             + `Repeat this 15 times. <break time="1s"/>`
-            + `Tell me to continue when you are done. <break time="90s"/>`,
+            + `Tell me to continue when you are done. `,
             "name": "Hip Raise, Lying",
             "name_original": "Hip Raise, Lying",
             "creation_date": "2016-01-23",
@@ -224,7 +226,7 @@ module.exports = {
                 + `Hold the position for as long as you can. <break time="1s"/>`
                 + `Slowly get back to the initial position and repeat. <break time="1s"/>`
                 + `Do 10 repetitions.`
-                + `Tell me to continue when you are done. <break time="60s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Hollow Hold",
             "name_original": "Hollow Hold",
             "creation_date": "2016-02-16",
@@ -252,8 +254,9 @@ module.exports = {
                 + `Return to the starting position. <break time="1s"/>` 
                 + `Repeat this 10 times. <break time="1s"/>`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
-                + `10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> keep going `
-                + `<break time="15s"/> just a few more to go, 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
+                + `10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> `
+                + `7 <break time="3s"/> 6 <break time="3s"/> 5 <break time="3s"/> 4 <break time="1s"/> `
+                + `just a few more to go, 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Isometric Wipers",
             "name_original": "Isometric Wipers",
@@ -282,7 +285,7 @@ module.exports = {
                 + `Do 25 reps.`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going ` 
-                + `<break time="26s"/> just a few more to go <break time="1s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
+                + `<break time="10s"/> just a few more to go <break time="2s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
                 + `<break time="5s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Jumping Jacks",
@@ -315,7 +318,7 @@ module.exports = {
                 + `Keep your body straight at all times and hold this position as long as possible. <break time="1s"/>`
                 + `To increase difficulty an arm or leg can be raised while performing this exercise. <break time="1s"/>`
                 + `Do 3 reps. Remember hold each repetition for as long as you can. <break time="1s"/>`
-                + `Tell me to continue when you are done. <break time="120s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Plank",
             "name_original": "Plank",
             "creation_date": "2014-03-31",
@@ -340,7 +343,7 @@ module.exports = {
                 + `The back is always straight as well as the neck (always look to the ground). <break time="1s"/>`
                 + `Lower yourself to the initial position and repeat.`
                 + `Do as many pushups as you can. <break time="1s"/>`
-                + `Tell me to continue when you are done. <break time="80s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Push Ups",
             "name_original": "Push ups",
             "creation_date": "2013-08-28",
@@ -371,8 +374,8 @@ module.exports = {
                 + `Do 20 repetitions of this exercise. <break time="1s"/>`
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `20 <break time="2s"/> 19 <break time="2s"/> 18 <break time="2s"/> keep going ` 
-                + `<break time="14s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> just a few more to go `
-                + `<break time="13s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
+                + `<break time="9s"/> good going <break time="4s"/> 10 <break time="2s"/> 9 <break time="2s"/> 8 <break time="7s"/> just a few more to go `
+                + `<break time="1s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
                 + `Tell me to continue when ready. <break time="5s"/>`,
             "name": "Reverse Crunch",
             "name_original": "Reverse Crunch",
@@ -400,7 +403,7 @@ module.exports = {
                 + `Do 4 reps. 2 on each side. <break time="1s"/>`
                 + `Remember to hold each repetition for as long as you can. `
                 + `Tell me to continue when you are done. <break time="1s"/>`
-                + `This exercise works your obliques and helps stabilize your spine. <break time="120s"/>`,
+                + `This exercise works your obliques and helps stabilize your spine. `,
             "name": "Side Plank",
             "name_original": "Side Plank",
             "creation_date": "2015-05-21",
@@ -426,7 +429,7 @@ module.exports = {
                 + `Asume the hand stand position against a wall with your chest facing the wall. <break time="1s"/>`
                 + `Hold the stand for as long as you can. <break time="1s"/>`
                 + `Do 3 reps. Remember to hold each repetition for as long as you can. <break time="1s"/>`
-                + `Tell me to continue when you are done. <break time="60s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Wall Handstand",
             "name_original": "Wall Handstand",
             "creation_date": "2016-01-04",
@@ -449,11 +452,7 @@ module.exports = {
                 + `Your feet should be flat on the ground. <break time="1s"/>`
                 + `Now do a pushup as you would normally do. <break time="1s"/>`
                 + `Do 60 wall pushups. <break time="1s"/>`
-                + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
-                + `60 <break time="1s"/> 59 <break time="1s"/> 58 <break time="1s"/> keep going ` 
-                + `<break time="47s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> just a few more to go `
-                + `<break time="6s"/> 3 <break time="1s"/> 2 <break time="1s"/> 1. Relax! <break time="2s"/>`
-                + `Tell me to continue when ready. <break time="5s"/>`,
+                + `Tell me to continue when you are done. `,
             "name": "Wall Pushup",
             "name_original": "Wall pushup",
             "creation_date": "2014-01-12",
@@ -482,13 +481,10 @@ module.exports = {
             "status": "2",
             "description": `Find a nice flat piece of wall and stand with your back leaning against the wall. <break time="1s"/>` 
             + `Slowly slide down the wall while moving your feet away from it, until your thighs are parallel to the ground and both your knees and your hips are bent at a 90° angle. <break time="1s"/>`
-            + `Cross your arms in front of your chest and hold this position for 10 seconds. <break time="1s"/>`
+            + `Cross your arms in front of your chest and hold this position for 20 seconds. <break time="1s"/>`
             + `Another variant you can try, put a big inflated rubber ball (like a small basketball) between your knees and squeeze the ball while holding the squat position <break time="1s"/>`
-            + `Repeat the exercise 10 time. `
-            + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
-            + `10 <break time="12s"/> 9 <break time="12s"/> 8 <break time=12s"/> keep going ` 
-            + `<break time="80s"/> 3 <break time="12s"/> 2 <break time="12s"/> 1. Relax! <break time="2s"/>`
-            + `Tell me to continue when ready. <break time="5s"/>`,
+            + `Repeat the exercise 10 time. <break time="1s"/>`
+            + `Tell me to continue when you are done. `,
             "name": "Wall Squat",
             "name_original": "Wall Squat",
             "creation_date": "2016-02-29",
