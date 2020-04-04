@@ -110,7 +110,6 @@
                     ],
                     "samples": [
                         "repeat {QnA} also",
-                        "repeat {QnA} and {QnA}",
                         "i missed {QnA}",
                         "say the {QnA} again",
                         "can you repeat the {QnA}",
@@ -186,6 +185,7 @@
                             "name": {
                                 "value": "Cartoon and Animations",
                                 "synonyms": [
+                                    "animation",
                                     "Animations",
                                     "Cartoon"
                                 ]
@@ -207,6 +207,8 @@
                             "name": {
                                 "value": "Gadgets",
                                 "synonyms": [
+                                    "gadget",
+                                    "device",
                                     "Technology",
                                     "Devices"
                                 ]
@@ -215,7 +217,12 @@
                         {
                             "id": "29",
                             "name": {
-                                "value": "Comics"
+                                "value": "Comics",
+                                "synonyms": [
+                                    "marvel",
+                                    "D. C.",
+                                    "comic"
+                                ]
                             }
                         },
                         {
@@ -223,6 +230,9 @@
                             "name": {
                                 "value": "Vehicles",
                                 "synonyms": [
+                                    "automobile",
+                                    "vehicle",
+                                    "car",
                                     "Cars"
                                 ]
                             }
@@ -232,6 +242,7 @@
                             "name": {
                                 "value": "Animals",
                                 "synonyms": [
+                                    "animal",
                                     "Wildlife"
                                 ]
                             }
@@ -241,6 +252,8 @@
                             "name": {
                                 "value": "Celebrities",
                                 "synonyms": [
+                                    "celebrity",
+                                    "actor",
                                     "Actors"
                                 ]
                             }
@@ -254,13 +267,19 @@
                         {
                             "id": "24",
                             "name": {
-                                "value": "Politics"
+                                "value": "Politics",
+                                "synonyms": [
+                                    "political"
+                                ]
                             }
                         },
                         {
                             "id": "23",
                             "name": {
-                                "value": "History"
+                                "value": "History",
+                                "synonyms": [
+                                    "past"
+                                ]
                             }
                         },
                         {
@@ -268,6 +287,10 @@
                             "name": {
                                 "value": "Geography",
                                 "synonyms": [
+                                    "city locations",
+                                    "country locations",
+                                    "locations",
+                                    "loaction",
                                     "Geo"
                                 ]
                             }
@@ -277,6 +300,8 @@
                             "name": {
                                 "value": "Sports",
                                 "synonyms": [
+                                    "Game",
+                                    "sport",
                                     "Olympic",
                                     "Games"
                                 ]
@@ -285,7 +310,10 @@
                         {
                             "id": "20",
                             "name": {
-                                "value": "Mythology"
+                                "value": "Mythology",
+                                "synonyms": [
+                                    "Myth"
+                                ]
                             }
                         },
                         {
@@ -293,6 +321,7 @@
                             "name": {
                                 "value": "Mathematics",
                                 "synonyms": [
+                                    "math",
                                     "Maths"
                                 ]
                             }
@@ -302,6 +331,7 @@
                             "name": {
                                 "value": "Computers",
                                 "synonyms": [
+                                    "P. C.",
                                     "Laptop",
                                     "Computer"
                                 ]
@@ -312,6 +342,7 @@
                             "name": {
                                 "value": "Science and Nature",
                                 "synonyms": [
+                                    "environment",
                                     "Nature",
                                     "Science"
                                 ]
@@ -320,7 +351,10 @@
                         {
                             "id": "16",
                             "name": {
-                                "value": "Board Games"
+                                "value": "Board Games",
+                                "synonyms": [
+                                    "board"
+                                ]
                             }
                         },
                         {
@@ -328,6 +362,8 @@
                             "name": {
                                 "value": "Video Games",
                                 "synonyms": [
+                                    "video game",
+                                    "console game",
                                     "Console Games"
                                 ]
                             }
@@ -347,6 +383,7 @@
                             "name": {
                                 "value": "Musicals and Theatres",
                                 "synonyms": [
+                                    "Theatre",
                                     "Theatres",
                                     "Musical Theatres"
                                 ]
@@ -366,6 +403,7 @@
                             "name": {
                                 "value": "Film",
                                 "synonyms": [
+                                    "Films",
                                     "movie",
                                     "movies",
                                     "Cinema"
@@ -387,6 +425,8 @@
                             "name": {
                                 "value": "General Knowledge",
                                 "synonyms": [
+                                    "G. K.",
+                                    "common",
                                     "General",
                                     "G K",
                                     "GK"
@@ -419,6 +459,7 @@
                             "name": {
                                 "value": "D",
                                 "synonyms": [
+                                    "D.",
                                     "option four",
                                     "fourth one",
                                     "4",
@@ -433,6 +474,7 @@
                             "name": {
                                 "value": "C",
                                 "synonyms": [
+                                    "C.",
                                     "option three",
                                     "third",
                                     "third option",
@@ -447,6 +489,7 @@
                             "name": {
                                 "value": "B",
                                 "synonyms": [
+                                    "B.",
                                     "option two",
                                     "second",
                                     "second one",
@@ -461,6 +504,7 @@
                             "name": {
                                 "value": "A",
                                 "synonyms": [
+                                    "A.",
                                     "option one",
                                     "first option",
                                     "first",

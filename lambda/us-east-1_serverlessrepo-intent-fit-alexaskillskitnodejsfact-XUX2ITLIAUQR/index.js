@@ -376,8 +376,26 @@ const AnswerIntent = {
   async handle(handlerInput) {
     var endSession = false;
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var answerSlot = "";
     const request = handlerInput.requestEnvelope.request;
-    const answerSlot = request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+    if(handlerInput.requestEnvelope
+      && handlerInput.requestEnvelope.request
+      && handlerInput.requestEnvelope.request.intent
+      && handlerInput.requestEnvelope.request.intent.slots
+      && handlerInput.requestEnvelope.request.intent.slots.answer
+      && handlerInput.requestEnvelope.request.intent.slots.answer.resolutions
+      && handlerInput.requestEnvelope.request.intent.slots.answer.resolutions.resolutionsPerAuthority[0]
+      && (handlerInput.requestEnvelope.request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].status.code === "ER_SUCCESS_MATCH")){
+      answerSlot = request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+    }
+    else{
+      var speechText = 'For each questions reply with A, B, C or D. ';
+      return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .withShouldEndSession(false)
+      .getResponse();
+    }
 
     const prevAnswer = SessionAttributes.PrevAnswer;
     var speakOutput;
