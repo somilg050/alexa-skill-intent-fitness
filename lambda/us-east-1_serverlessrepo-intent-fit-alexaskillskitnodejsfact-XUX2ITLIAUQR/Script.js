@@ -33,7 +33,7 @@ module.exports = {
             "description": `Rest your weight on your palms and the balls of your feet, not dissimilar to normal pushup position. <break time="1s"/>`
                 + `Move by stepping with your Right palm and Left foot, then your Left palm and Right foot. <break time="1s"/>`
                 + `Basically, walk like a lumbering bear. Move as fast as you can. <break time="1s"/>`
-                + `Do this for 20 seconds.`
+                + `Do this for 20 seconds. `
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `20 <break time="1s"/> 19 <break time="1s"/> 18 <break time="1s"/> keep going <break time="2s"/> ` 
                 + `This exercise works your Pecs, Deltoids, Triceps, Traps, Lats, Abs and Lower Back, Hip Flexors, Quads, Glutes and Calves `
@@ -99,11 +99,11 @@ module.exports = {
             "license_author": "tanous",
             "status": "1",
             "description": `Bodyweight Squats are a simple exercise that requires no equipment what soever (Though there are variants that add weights). <break time="1s"/>` 
-                + `Setup by standing up straight and placing your feet slightly further then shoulder width apart with your feet pointing slightly outwards. <break time="1s"/>`
+                + `Setup by standing up straight, and placing your feet slightly further then shoulder width apart with your feet pointing slightly outwards. <break time="1s"/>`
                 + `Hold your arms straight out infront. 'squat' down leading with your hips as if you are going to sit down on a chair, untill your hip is parallel with or lower then your knees. <break time="1s"/>`
                 + `While doing this you should keep your back straight and your body weight should be towards the back of your feet. <break time="1s"/>`
                 + `Your knees shouldn't should end up behind your toes. If they are in front of them you are not leading the squat with your hips and will have the wrong posture. <break time="1s"/>`
-                + `Stand back up. Repeat the expercise 25 times.`
+                + `Stand back up. Repeat the excercise 25 times. `
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going <break time="2s"/> ` 
                 + `Holding your arms straight out in front of you will help you keep the correct posture throughout the exercise. It's also helpful in maintaining posture to choose a point on the wall to focus on.`                
@@ -150,35 +150,6 @@ module.exports = {
                 2,
                 5
             ],
-            "equipment": [
-                7
-            ]
-        },
-        {
-            "id": 480,
-            "license_author": "KS90",
-            "status": "1",
-            "description": `1. Position yourself on your knees and hand with shoulders wide apart and palms flat. <break time="2s"/>`
-                + `2. Keep your knees, hip wide apart and bend them at a 90-degrees angle. <break time="2s"/>`
-                + `3. Keep your back straight, raise your right thigh and bring it close to your chest as much as you can. <break time="2s"/>`
-                + `4. Then raise the same thigh out to the side by keeping the hips still. <break time="2s"/>`
-                + `5. Now, kick your raised leg slowly in the backward position. <break time="2s"/>`
-                + `6. Now perform these steps with your left leg. <break time="2s"/>`
-                + `Repeat the exercise 20 times, taht is, 20 times for each leg. <break time="1s"/>`
-                + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
-                + `20 <break time="3s"/> 19 <break time="3s"/> 18 <break time="3s"/> keep going `
-                + ` <break time="20s"/> 10 <break time="3s"/> 9 <break time="3s"/> 8 <break time="3s"/> just few more to go  `
-                + `<break time="14s"/> 3 <break time="3s"/> 2 <break time="3s"/> 1. Relax! <break time="2s"/>`
-                + `Tell me to continue when ready. <break time="5s"/>`,
-            "name": "Fire Hydrant",
-            "name_original": "Fire Hydrant",
-            "creation_date": "2017-09-05",
-            "uuid": "97f02715-43e9-44bf-b8a7-4aa0b38a4945",
-            "license": 2,
-            "category": 9,
-            "language": 2,
-            "muscles": [],
-            "muscles_secondary": [],
             "equipment": [
                 7
             ]

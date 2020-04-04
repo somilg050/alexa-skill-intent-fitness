@@ -135,7 +135,29 @@
                         "continue",
                         "done"
                     ]
-                }
+                },
+                {
+                    "name": "FitnessFacts",
+                    "slots": [],
+                    "samples": [
+                      "fitness fact sounds great",
+                      "i wanna know a fitness fact",
+                      "i wanna know an interesting fitness fact",
+                      "I would like a fitness fact",
+                      "I would love an interesting fitness fact",
+                      "how about a fitness fact",
+                      "how about an interesting fitness fact",
+                      "i want to know an interesting fitness fact",
+                      "i want to know a interesting fact",
+                      "tell me an interesting fact",
+                      "tell me a fact",
+                      "interesting fact",
+                      "facts",
+                      "fact",
+                      "fitness fact",
+                      "tell me a interesting fitness fact"
+                    ]
+                  }
             ],
             "types": [
                 {

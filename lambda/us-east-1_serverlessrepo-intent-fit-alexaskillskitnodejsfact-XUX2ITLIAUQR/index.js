@@ -1,13 +1,41 @@
-/* eslint-disable  func-names */
-/* eslint-disable  no-console */
- 
 const Alexa = require('ask-sdk-core');
-//const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
-
+const Facts = require('./Facts.js');
 const Script = require('./Script.js');
 
 var RandomInt = (min, max) => {
   return Math.floor(Math.random()*(max-min+1)+min);
+};
+
+const FitnessFactsIntent = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+      && handlerInput.requestEnvelope.request.intent.name === 'FitnessFacts';
+  },
+  async handle(handlerInput) {
+    var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    var speechText = '';
+    var data = Facts["facts"];
+    
+    if(!(SessionAttributes.hasOwnProperty("FactIndex"))){
+      SessionAttributes.FactIndex = RandomInt(0,(data.length-1));
+    }
+    var factIndex = SessionAttributes.FactIndex;
+
+    speechText = data[factIndex];
+    speechText += `That was your fact. You can ask for another interesting fitness fact or start your fitness journey. `
+      + `What would you like to do? `;
+    
+    factIndex++;
+
+    SessionAttributes.FactIndex = factIndex
+    SessionAttributes.Last = speechText;
+    
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .withShouldEndSession(false)
+      .getResponse();
+  },
 };
 
 const LaunchRequestHandler = {
@@ -23,6 +51,7 @@ const LaunchRequestHandler = {
 
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -47,6 +76,7 @@ const FitnessJourneyIntent = {
     
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -63,7 +93,6 @@ const WorkoutIntent = {
   },
   async handle(handlerInput) {
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    //var PersistenceAttributes = await handlerInput.attributesManager.getPersistentAttributes();
     var speechText ='';
 
     if (SessionAttributes.hasOwnProperty("LastFlag") && SessionAttributes.LastFlag){
@@ -159,6 +188,7 @@ const WorkoutIntent = {
 
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -178,6 +208,7 @@ const ChangeCategoryIntent = {
     
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -264,8 +295,7 @@ const QuizIntent = {
     const request = handlerInput.requestEnvelope.request;
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     return (request.type === 'IntentRequest' && !(request.intent.name === 'FitnessJourney')
-      && request.intent.name === 'QuizIntent' && !(SessionAttributes.AnswerAwaiting) &&
-       (!request.intent.name === 'Continue') && (!request.intent.name === 'ChangeCategory'));
+      && request.intent.name === 'QuizIntent' && !(SessionAttributes.AnswerAwaiting));
   },
   async handle(handlerInput) {
     var speechText = '';
@@ -314,6 +344,7 @@ const QuizIntent = {
       speechText = `Sorry, we don't have that category. Try something like movie, music, sports. `;
       return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(endSession)
       .getResponse();
     }
@@ -327,6 +358,7 @@ const QuizIntent = {
 
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(endSession)
       .getResponse();
   },
@@ -396,10 +428,11 @@ const CancelAndStopIntentHandler = {
         || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
   },
   handle(handlerInput) {
-    const speechText = `Cancel And Stop Intent Handler`;
+    const speechText = `Good bye and get some rest. `;
  
     return handlerInput.responseBuilder
       .speak(speechText)
+      .reprompt(speechText)
       .withShouldEndSession(true)
       .getResponse();
   },
@@ -411,7 +444,9 @@ const FallBackHandler = {
       && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.FallbackIntent';
   },
   handle(handlerInput) {
-    var speechText ="Fallback Intent";
+    var speechText = `Looks Like we have fallen somewhere, You can ask for an interesting
+                      fitness fact or start your fitness journey. 
+                      What would you like to do?`;
     var SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     SessionAttributes.Last = speechText;
     return handlerInput.responseBuilder
@@ -427,7 +462,10 @@ const HelpIntentHandler = {
       && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
   },
   handle(handlerInput) {
-    const speechText = `HELP`;
+    const speechText = `Welcome to Intent Fitness, the fun way to train both your mind and your body.
+                      You can ask for an interesting fitness fact or start your fitness journey. 
+                      What would you like to do?`;
+
     const SessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     SessionAttributes.Last = speechText;
     
@@ -456,6 +494,7 @@ const RepeatAnythingHandler = {
     }
     return handlerInput.responseBuilder
       .speak(speechOutput)
+      .reprompt(speechOutput)
       .withShouldEndSession(false)
       .getResponse();
   },
@@ -469,7 +508,7 @@ const SessionEndedRequestHandler = {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
  
     return handlerInput.responseBuilder
-    .speak(`Session Ended`)
+    .speak(`Ba Bye!!`)
     .withShouldEndSession(true)
     .getResponse();
   },
@@ -483,19 +522,11 @@ const ErrorHandler = {
     console.log(`Error handled: ${error.message}`);
  
     return handlerInput.responseBuilder
-      .speak(`Error`)
+      .speak(`Looks like there is some issue. See you later. `)
       .withShouldEndSession(true)
       .getResponse();
   },
 };
- 
-// function getPersistenceAdapter(tableName) {
-//   // Not in Alexa Hosted Environment
-//   return new ddbAdapter.DynamoDbPersistenceAdapter({
-//     tableName: tableName,
-//     createTable: true
-//   });
-// }
  
 const getRemoteData = function (url) {
   return new Promise((resolve, reject) => {
@@ -515,7 +546,6 @@ const getRemoteData = function (url) {
 const skillBuilder = Alexa.SkillBuilders.custom();
  
 exports.handler = skillBuilder
-  //.withPersistenceAdapter(getPersistenceAdapter('Intent-Fitness'))
   .addRequestHandlers(
     LaunchRequestHandler,
     FallBackHandler,
@@ -528,7 +558,8 @@ exports.handler = skillBuilder
     SessionEndedRequestHandler,
     WorkoutIntent,
     ChangeCategoryIntent,
-    ContinueIntent
+    ContinueIntent,
+    FitnessFactsIntent
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
