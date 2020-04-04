@@ -282,7 +282,7 @@ module.exports = {
             "description": `Stand with feet together and arms at the sides. <break time="1s"/>`
                 + `Jump to a position with the legs spread wide and the hands touching overhead. <break time="1s"/>`
                 + `Jump back to the initial position. Repeat! <break time="1s"/>`
-                + `Do 25 reps.`
+                + `Do 25 reps. `
                 + `I'll start a count for you but once you are done you need to tell me to continue. <break time="1s"/>`
                 + `25 <break time="1s"/> 24 <break time="1s"/> 23 <break time="1s"/> keep going ` 
                 + `<break time="9s"/> just a few more to go <break time="3s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 `
