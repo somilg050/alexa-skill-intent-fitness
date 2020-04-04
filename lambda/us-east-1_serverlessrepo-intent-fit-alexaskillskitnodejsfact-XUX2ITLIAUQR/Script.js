@@ -4,8 +4,8 @@ module.exports = {
             "id": 607,
             "license_author": "thetalonlawson",
             "status": "1",
-            "description": `<p>Engage abs, then alternate between tapping your left and right ankle by reaching either side with your arm extended.`
-                + `Touch your feet 20 times each. `
+            "description": `<p>Engage abs, then alternate between tapping your left and right ankle by reaching either side with your arm extended. <break time="1s"/>`
+                + `Touch your feet 20 times each. <break time="1s"/>`
                 + `I'll start a count for you but once you are done you need to tell me to continue. `
                 + `20 <break time="1s"/> 19 <break time="1s"/> 18 <break time="1s"/> keep going ` 
                 + `<break time="7s"/> 10 <break time="1s"/> 9 <break time="1s"/> 8 <break time="1s"/> good going `
